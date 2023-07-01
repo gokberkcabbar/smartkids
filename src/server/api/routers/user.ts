@@ -9,6 +9,7 @@ import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
 
 export const userRouter = createTRPCRouter({
+  //POST - Yeni Kullanıcı kaydı
   addUser: publicProcedure.input(z.object({
     userName: z.string(),
     password: z.string(),
@@ -33,8 +34,13 @@ export const userRouter = createTRPCRouter({
         data: {
             userNo: userName,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            password: hash
+            password: hash,
+
         }
     })
+  }),
+  //GET - Kullanıcı bilgilerini session'dan çekme
+  getUserInfo: protectedProcedure.query(({ctx})=>{
+    return ctx.session.user.userNo
   })
 });

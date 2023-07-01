@@ -50,13 +50,25 @@ model Session {
 }
 
 model User {
-    id       String    @id @default(cuid())
-    name     String?
-    userNo   String    @unique
-    password String
-    image    String?
-    accounts Account[]
-    sessions Session[]
+    id          String        @id @default(cuid())
+    name        String
+    userNo      String        @unique
+    password    String
+    image       String?
+    fName       String?
+    fJob        String?
+    fPhone      String?
+    mName       String?
+    mJob        String?
+    mPhone      String?
+    tPhone      String?
+    age         Int?
+    schoolClass String?
+    role        Role          @default(STUDENT)
+    class       Class[]
+    transaction Transaction[]
+    accounts    Account[]
+    sessions    Session[]
 }
 
 model VerificationToken {
@@ -65,4 +77,54 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum Role {
+    STUDENT
+    ADMIN
+}
+
+model Class {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    location  Location
+    userId    String
+
+    @@index([userId])
+}
+
+enum Location {
+    ATAKUM
+    PERA
+}
+
+model Transaction {
+    id             String         @id @default(cuid())
+    user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    transactionFor TransactionFor
+    paid           Boolean
+    amount         Float?
+    userId         String
+
+    @@index([userId])
+}
+
+enum TransactionFor {
+    MATERYAL1
+    MATERYAL2
+    OCAK
+    SUBAT
+    MART
+    NISAN
+    MAYIS
+    HAZIRAN
+    TEMMUZ
+    AGUSTOS
+    EYLUL
+    EKIM
+    KASIM
+    ARALIK
 }

@@ -1,76 +1,117 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import NextAuth, { type NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
-import { DefaultSession } from "next-auth";
-
-import { env } from "~/env.mjs";
+import type { GetServerSidePropsContext } from "next";
+import {
+  getServerSession,
+  type NextAuthOptions,
+  type DefaultSession,
+} from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
+import * as bcrypt from 'bcrypt'
+/**
+ * Module augmentation for `next-auth` types.
+ * Allows us to add custom properties to the `session` object and keep type
+ * safety.
+ *
+ * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
+ **/
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      userNo: string;
+      // ...other properties
+      // role: UserRole;
+    } & DefaultSession["user"];
+  }
 
+  interface User {
+    id: string,
+    userNo: string
+  }
+}
 
+/**
+ * Options for NextAuth.js used to configure adapters, providers, callbacks,
+ * etc.
+ *
+ * @see https://next-auth.js.org/configuration/options
+ **/
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/require-await
-    jwt: async ({ token, user }) => {
-      if (user) {
-        token.id = user.id;
-        token.userNo = user.userNo
-      }
-
-      return token;
-    },
     session({ session, token }) {
-      if (token && session.user) {
-        session.user.id  = token.id
-        session.user.userNo = token.userNo
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.userNo = token.userNo as string;
+        // session.user.role = user.role; <-- put other properties on the session here
       }
       return session;
     },
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.userNo = user.userNo;
+        // token.role = user.role; <-- put other properties on the token here
+      }
+      return token;
+    },
   },
-  secret: env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: "/signin",
-  },
+  adapter: PrismaAdapter(prisma),
   providers: [
-    Credentials({
-      name: "credentials",
+    CredentialsProvider({
+      name: "Credentials",
       credentials: {
-        userNo: {
-          label: "userNo",
-          type: "text",
-        },
+        userNo: { label: "UserNo", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      authorize: async (credentials) => {
-        const cred = credentials!
-
-        const user = await prisma.user.findFirst({
-          where: { userNo: cred.userNo },
+      async authorize(credentials) {
+        const user = await prisma.user.findUnique({
+          where: {
+            userNo: credentials!.userNo
+          }
         });
-
         if (!user) {
-          return null;
+          throw new Error("No user found");
         }
-
-        const isValidPassword = bcrypt.compareSync(
-          cred.password,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const passwordMatch = await bcrypt.compare(
+          credentials!.password,
           user.password
         );
-
-        if (!isValidPassword) {
-          return null;
+        if (!passwordMatch) {
+          throw new Error("Invalid password");
         }
-
-        return {
-          id: user.id,
-          password: user.password,
-          userNo: user.userNo,
-        }
+        return user;
       },
     }),
-    // ...add more providers here
+    /**
+     * ...add more providers here
+     *
+     * Most other providers require a bit more work than the Discord provider.
+     * For example, the GitHub provider requires you to add the
+     * `refresh_token_expires_in` field to the Account model. Refer to the
+     * NextAuth.js docs for the provider you want to use. Example:
+     * @see https://next-auth.js.org/providers/github
+     **/
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
 };
 
-export default NextAuth(authOptions);
+/**
+ * Wrapper for `getServerSession` so that you don't need to import the
+ * `authOptions` in every file.
+ *
+ * @see https://next-auth.js.org/configuration/nextjs
+ **/
+export const getServerAuthSession = (ctx: {
+  req: GetServerSidePropsContext["req"];
+  res: GetServerSidePropsContext["res"];
+}) => {
+  return getServerSession(ctx.req, ctx.res, authOptions);
+};

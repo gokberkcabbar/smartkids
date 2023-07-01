@@ -33,6 +33,7 @@ import {
 } from '@tabler/icons-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { api } from '~/utils/api';
 
 const useStyles = createStyles((theme) => ({
   
@@ -135,6 +136,8 @@ export function HeaderBar() {
   const { classes, theme } = useStyles();
   const session = useSession()
   const router = useRouter()
+  const {data: userData} = api.user.getUserInfo.useQuery()
+  console.log(userData)
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
       <Group noWrap align="flex-start">
@@ -160,8 +163,8 @@ export function HeaderBar() {
           <MantineLogo size={30} />
 
           <Group sx={{ height: '100%' }} spacing={0} className={classes.hiddenMobile}>
-            <a href="#" className={classes.link}>
-              Home
+            <a onClick={()=>router.push("/")} className={classes.link}>
+              Ana Sayfa
             </a>
             <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
               <HoverCard.Target>
@@ -223,8 +226,8 @@ export function HeaderBar() {
           ) : (
             session.status === "loading" ? (<Loader />) : (
               <Group className={classes.hiddenMobile}>
-              <Button variant="default">Log in</Button>
-              <Button onClick={()=>router.push('/auth/signin')}>Sign up</Button>
+              <Button variant="default">Bize Ulaşın</Button>
+              <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
           </Group>
             )
           )}
@@ -267,8 +270,16 @@ export function HeaderBar() {
           <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
 
           <Group position="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+          {session.status === "authenticated" ? (
+            <Button onClick={()=>signOut({callbackUrl: "/"})} variant="default">Sign Out</Button>
+          ) : (
+            session.status === "loading" ? (<Loader />) : (
+              <>
+              <Button variant="default">Bize Ulaşın</Button>
+              <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
+              </>
+            )
+          )}
           </Group>
         </ScrollArea>
       </Drawer>
