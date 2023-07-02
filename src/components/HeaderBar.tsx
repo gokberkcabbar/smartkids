@@ -38,6 +38,7 @@ import {
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
+import { ModeStorage } from './ModeStorage';
 
 const useStyles = createStyles((theme) => ({
   
@@ -143,7 +144,7 @@ export function HeaderBar() {
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text onClick={()=>router.push(`protected/admin/${item.link}`)} size="sm" fw={500}>
+          <Text onClick={()=>router.push(`admin/${item.link}`)} size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">
@@ -219,11 +220,13 @@ export function HeaderBar() {
 
           {session.status === "authenticated" ? (
             <Group className={classes.hiddenMobile}>
+            <ModeStorage />
             <Button onClick={()=>signOut({callbackUrl: "/"})} variant="default">Sign Out</Button>
           </Group>
           ) : (
             session.status === "loading" ? (<Loader />) : (
               <Group className={classes.hiddenMobile}>
+              <ModeStorage />
               <Button variant="default">Bize Ulaşın</Button>
               <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
           </Group>
@@ -269,10 +272,14 @@ export function HeaderBar() {
 
           <Group position="center" grow pb="xl" px="md">
           {session.status === "authenticated" ? (
+            <>
+            <ModeStorage />
             <Button onClick={()=>signOut({callbackUrl: "/"})} variant="default">Sign Out</Button>
+            </>
           ) : (
             session.status === "loading" ? (<Loader />) : (
               <>
+              <ModeStorage />
               <Button variant="default">Bize Ulaşın</Button>
               <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
               </>
