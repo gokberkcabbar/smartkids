@@ -8,6 +8,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
 import * as bcrypt from 'bcrypt'
+import { Role } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types.
  * Allows us to add custom properties to the `session` object and keep type
@@ -20,6 +21,7 @@ declare module "next-auth" {
     user: {
       id: string;
       userNo: string;
+      role: Role
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -28,6 +30,7 @@ declare module "next-auth" {
   interface User {
     id: string,
     userNo: string
+    role: Role
   }
 }
 
@@ -43,6 +46,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.id as string;
         session.user.userNo = token.userNo as string;
+        session.user.role = token.role as Role
         // session.user.role = user.role; <-- put other properties on the session here
       }
       return session;
@@ -51,6 +55,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.userNo = user.userNo;
+        token.role = user.role
         // token.role = user.role; <-- put other properties on the token here
       }
       return token;

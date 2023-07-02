@@ -20,6 +20,7 @@ import { type Session } from "next-auth";
 
 import { getServerAuthSession } from "../auth";
 import { prisma } from "../db";
+import { Role } from "@prisma/client";
 
 type CreateContextOptions = {
   session: Session | null;
@@ -114,6 +115,20 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
+const checkUserIsAdmin = t.middleware(({ctx, next})=>{
+  if (ctx.session?.user.role !== Role.ADMIN){
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Hesabınız yönetici değil"
+    })
+  }
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user }
+    }
+  })
+})
+
 /**
  * Protected (authenticated) procedure
  *
@@ -124,3 +139,4 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+export const adminProcedure = t.procedure.use(checkUserIsAdmin)

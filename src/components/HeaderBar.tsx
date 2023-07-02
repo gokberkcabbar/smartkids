@@ -30,6 +30,10 @@ import {
   IconFingerprint,
   IconCoin,
   IconChevronDown,
+  IconUser,
+  IconSchool,
+  IconCurrencyLira,
+  IconBellRinging,
 } from '@tabler/icons-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -99,34 +103,28 @@ const useStyles = createStyles((theme) => ({
 
 const mockdata = [
   {
-    icon: IconCode,
-    title: 'Open source',
-    description: 'This Pokémon’s cry is very loud and distracting',
+    icon: IconUser,
+    title: 'Öğrenci Listesi',
+    description: 'Tüm şubelerdeki kayıtlı öğrencileri listele',
+    link: "students"
   },
   {
-    icon: IconCoin,
-    title: 'Free for everyone',
-    description: 'The fluid of Smeargle’s tail secretions changes',
+    icon: IconSchool,
+    title: 'Sınıf Yönetimi',
+    description: 'Tüm şubelerdeki sınıfları listele ve yönet',
+    link: "classes"
   },
   {
-    icon: IconBook,
-    title: 'Documentation',
-    description: 'Yanma is capable of seeing 360 degrees without',
+    icon: IconCurrencyLira,
+    title: 'Ödeme Takibi',
+    description: 'Ödemeleri sisteme gir ve takip et',
+    link: "accounting"
   },
   {
-    icon: IconFingerprint,
-    title: 'Security',
-    description: 'The shell’s rounded shape and the grooves on its.',
-  },
-  {
-    icon: IconChartPie3,
-    title: 'Analytics',
-    description: 'This Pokémon uses its flying ability to quickly chase',
-  },
-  {
-    icon: IconNotification,
-    title: 'Notifications',
-    description: 'Combusken battles with the intensely hot flames it spews',
+    icon: IconBellRinging,
+    title: 'Bildirim Ayarları',
+    description: 'Bildirimleri ayarla ve gözden kaçırma',
+    link: "notifications"
   },
 ];
 
@@ -136,7 +134,7 @@ export function HeaderBar() {
   const { classes, theme } = useStyles();
   const session = useSession()
   const router = useRouter()
-  const {data: userData} = api.user.getUserInfo.useQuery()
+  const {data: userData} = api.user.getAdminInfo.useQuery()
   console.log(userData)
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -145,7 +143,7 @@ export function HeaderBar() {
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text size="sm" fw={500}>
+          <Text onClick={()=>router.push(`protected/admin/${item.link}`)} size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">
@@ -171,7 +169,7 @@ export function HeaderBar() {
                 <a href="#" className={classes.link}>
                   <Center inline>
                     <Box component="span" mr={5}>
-                      Features
+                      Yönetim Paneli
                     </Box>
                     <IconChevronDown size={16} color={theme.fn.primaryColor()} />
                   </Center>
@@ -180,7 +178,7 @@ export function HeaderBar() {
 
               <HoverCard.Dropdown sx={{ overflow: 'hidden' }}>
                 <Group position="apart" px="md">
-                  <Text fw={500}>Features</Text>
+                  <Text fw={500}>Özellikler</Text>
                   <Anchor href="#" fz="xs">
                     View all
                   </Anchor>

@@ -4,6 +4,7 @@ import {
   createTRPCRouter,
   publicProcedure,
   protectedProcedure,
+  adminProcedure
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
@@ -41,6 +42,11 @@ export const userRouter = createTRPCRouter({
   }),
   //GET - Kullanıcı bilgilerini session'dan çekme
   getUserInfo: protectedProcedure.query(({ctx})=>{
-    return ctx.session.user.userNo
+    return ctx.session.user
+  }),
+
+  //GET - Admin deneme
+  getAdminInfo: adminProcedure.query(({ctx})=>{
+    return ctx.session.user
   })
 });
