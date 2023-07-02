@@ -9,8 +9,11 @@ import { TableClass } from '~/components/TableClass'
 import { Modal } from '@mantine/core'
 import { Location } from '@prisma/client'
 import { api } from '~/utils/api'
+import { NextPage } from 'next'
+import { getSession } from 'next-auth/react'
+import { requireAdminAuth } from '~/utils/requireAdminAuth'
 
-export default function Classes() {
+const Classes: NextPage = ({session}:any) => {
   
   const form = useForm({
     initialValues: {
@@ -47,6 +50,19 @@ export default function Classes() {
     
     </>
   )
+}
+
+export default Classes
+
+export async function getServerSideProps(context: any){
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const session = await getSession(context)
+    return requireAdminAuth(context, ()=>{
+        return {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            props: {currentSession: session}
+        }
+    })
 }
 
 const ClassModal = ({form}:{form:UseFormReturnType<{

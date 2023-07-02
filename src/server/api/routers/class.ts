@@ -67,6 +67,19 @@ export const classRouter = createTRPCRouter({
             }
         })
     }),
+    // GET - Bir sınıfın özellikleri
+    getClassByName: adminProcedure.input(z.object({
+        name: z.string()
+    })).query(async ({input})=> {
+        return await prisma.class.findUnique({
+            where: {
+                name: input.name
+            },
+            include: {
+                user: true
+            }
+        })
+    }),
 
     // GET - Tüm sınıfları listele
     getClasses: adminProcedure.query(async ({})=>{

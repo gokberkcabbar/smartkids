@@ -31,7 +31,7 @@ export const TabButton = ({form}:{form:UseFormReturnType<{
   locationFilter: string;
 }>}) => {
   return (
-    <Tabs variant="pills" defaultValue="gallery">
+    <Tabs variant="pills" defaultValue="tumu">
       <Tabs.List>
         <Tabs.Tab onClick={()=>form.setFieldValue('locationFilter', "tumu")} value="tumu">Tümü</Tabs.Tab>
         <Tabs.Tab onClick={()=>form.setFieldValue('locationFilter', "atakum")} value="atakum">Atakum</Tabs.Tab>
