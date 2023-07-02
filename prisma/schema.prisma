@@ -65,10 +65,13 @@ model User {
     age         Int?
     schoolClass String?
     role        Role          @default(STUDENT)
-    class       Class[]
+    class       Class?        @relation(fields: [classId], references: [id])
     transaction Transaction[]
     accounts    Account[]
     sessions    Session[]
+    classId     String?
+
+    @@index([classId])
 }
 
 model VerificationToken {
@@ -86,14 +89,11 @@ enum Role {
 
 model Class {
     id        String   @id @default(cuid())
-    name      String
+    name      String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user      User[]
     location  Location
-    userId    String
-
-    @@index([userId])
 }
 
 enum Location {

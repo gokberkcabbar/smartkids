@@ -144,7 +144,7 @@ export function HeaderBar() {
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text onClick={()=>router.push(`admin/${item.link}`)} size="sm" fw={500}>
+          <Text onClick={()=>router.push(`/protected/admin/${item.link}`)} size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">
@@ -156,7 +156,7 @@ export function HeaderBar() {
   ));
 
   return (
-    <Box pb={120}>
+    <Box>
       <Header height={60} px="md">
         <Group position="apart" sx={{ height: '100%' }}>
           <MantineLogo size={30} />
