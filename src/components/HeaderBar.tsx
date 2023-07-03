@@ -135,8 +135,6 @@ export function HeaderBar() {
   const { classes, theme } = useStyles();
   const session = useSession()
   const router = useRouter()
-  const {data: userData} = api.user.getAdminInfo.useQuery()
-  console.log(userData)
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
       <Group noWrap align="flex-start">

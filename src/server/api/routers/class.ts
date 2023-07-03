@@ -110,5 +110,21 @@ export const classRouter = createTRPCRouter({
                 name: input.name
             }
         }) 
+    }),
+
+    // DELETE - Sınıftan Öğrenciyi sil
+    deleteStudentFromClass: adminProcedure.input(z.object({
+        userNo: z.string()
+    })).mutation(async ({input})=> {
+        return await prisma.user.update({
+            where: {
+                userNo: input.userNo
+            },
+            data: {
+                class: {
+                    disconnect: true
+                }
+            }
+        })
     })
 })

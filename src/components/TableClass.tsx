@@ -1,44 +1,44 @@
-import { ActionIcon, Loader, Modal, Table } from '@mantine/core';
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import { ActionIcon, Button, Loader, Modal, Select, Table, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import { api } from '~/utils/api';
 import { useForm } from '@mantine/form';
-import { Location } from '@prisma/client';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { Location, User } from '@prisma/client';
+import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { StudentsInClassDetail } from './StudentsInClassDetail';
+import { StudentsAddToClassTable } from './StudentsAddToClassTable';
 
 export const TableClass = ({form}:{form:UseFormReturnType<{
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }, (values: {
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }) => {
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }>}) => {
-  const formClassDetail = useForm({
+  const formClassDetail = useForm<{
+    nameClass: string;
+    modalClassDetail: boolean;
+    location: "ATAKUM" | "PERA"
+  }>({
     initialValues: {
-      nameClass: "",
-      modalClassDetail: false
+      location: 'ATAKUM',
+      modalClassDetail: false,
+      nameClass: ""
     }
+    
   })
   const context = api.useContext()
   const {data: elements, isFetched} = api.class.getClasses.useQuery()
@@ -106,18 +106,133 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
 const ClassDetailModal = ({formClassDetail}:{formClassDetail:UseFormReturnType<{
   nameClass: string;
   modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
 }, (values: {
   nameClass: string;
   modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
 }) => {
   nameClass: string;
   modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
 }>}) => {
   const {data, isFetched} = api.class.getClassByName.useQuery({name: formClassDetail.values.nameClass})
-  console.log(data?.user)
+  const form = useForm({
+    initialValues: {
+      studentSearch: "",
+      studentAddInClass: false
+    }
+  })
+  useEffect(() => {
+    if(data){
+      formClassDetail.setFieldValue('nameClass', data.name)
+      formClassDetail.setFieldValue('location', data.location)
+    }
+  
+  }, [data])
+  
   return (
-    <Modal opened={formClassDetail.values.modalClassDetail} onClose={()=>formClassDetail.setFieldValue('modalClassDetail', false)}>
-      <div>{data?.name}</div>
+    <>
+    <Modal size="50%" title="Sınıf Detayı" opened={formClassDetail.values.modalClassDetail} onClose={()=>formClassDetail.setFieldValue('modalClassDetail', false)}>
+      <div className='flex w-full justify-between items-end'>
+                <div className='md:w-1/3 w-1/2'>
+                    <TextInput {...formClassDetail.getInputProps('nameClass')} />
+                </div>
+                <div className='md:w-1/6 w-1/2'>
+                    <Select zIndex={100} dropdownPosition='bottom' data={[
+                        {
+                            value: 'ATAKUM', label: 'Atakum'
+                        },
+                        {
+                            value: 'PERA', label: 'Pera'
+                        }
+                    ]} placeholder='Şube seçiniz' {...formClassDetail.getInputProps('location')}/>
+                </div>
+            </div>
+            <div className='mt-12 flex flex-row w-full items-center justify-between'>
+                <div className='w-1/2'>
+                  <TextInput icon={<IconSearch size={16}/>} {...form.getInputProps('studentSearch')}/>
+                </div>
+                <ActionIcon onClick={()=>{
+                  formClassDetail.setFieldValue('modalClassDetail', false)
+                  form.setFieldValue('studentAddInClass', true)
+                }} variant='filled' color='cyan'>
+                  <IconPlus size={20} />
+                </ActionIcon>
+            </div>
+            <div className='mt-6'>
+              
+              {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              data ? (<StudentsInClassDetail form={form} userInfo={data.user}/>) : (<Loader />)}
+            </div>
+    </Modal>
+    <StudentAddInClass className={formClassDetail.values.nameClass} form={form} formClassDetail={formClassDetail}/>
+    </>
+  )
+}
+
+const StudentAddInClass = ({form, formClassDetail, className
+}:{form:UseFormReturnType<{
+  studentSearch: string;
+  studentAddInClass: boolean;
+}, (values: {
+  studentSearch: string;
+  studentAddInClass: boolean;
+}) => {
+  studentSearch: string;
+  studentAddInClass: boolean;
+}>, formClassDetail: UseFormReturnType<{
+  nameClass: string;
+  modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
+}, (values: {
+  nameClass: string;
+  modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
+}) => {
+  nameClass: string;
+  modalClassDetail: boolean;
+  location: "ATAKUM" | "PERA"
+}>, className: string}) => {
+  const {data: getStudentsExcludeClass} = api.user.getStudentsExcludeClass.useQuery()
+  
+  const formSearch = useForm({
+    initialValues: {
+      search: ""
+    }
+  })
+  const context = api.useContext()
+  const {mutate: addStudentInClass} = api.class.addStudentInClass.useMutation({
+    onSuccess: ()=>{
+      context.user.invalidate()
+      context.class.invalidate()
+    }
+  })
+  const [selected, setSelected] = useState<User[]>([])
+  return (
+    <Modal size="50%" title="Sınıfa Öğrenci Ekle" opened={form.values.studentAddInClass} onClose={()=>{
+      form.setFieldValue('studentAddInClass', false)
+      formClassDetail.setFieldValue('modalClassDetail', true)
+    }}>
+      <div className='md:w-1/3 w-1/2'>
+        <TextInput icon={<IconSearch size={16}/>} {...formSearch.getInputProps('search')} />
+      </div>
+      <div className='mt-12'>
+        {getStudentsExcludeClass ? (<StudentsAddToClassTable selected={selected} setSelected={setSelected} getStudentsExcludeClass={getStudentsExcludeClass} formSearch={formSearch}/>) : (<Loader />)}
+      </div>
+      <div className='mt-6'>
+        <Button onClick={()=>{
+          selected.forEach((val)=>{
+            if(selected.length !== 0){
+              addStudentInClass({name: className, userNo: val.userNo})
+            }
+            form.setFieldValue('studentAddInClass', false)
+            formClassDetail.setFieldValue('modalClassDetail', true)
+          })
+          setSelected([])
+        }}>Ekle</Button>
+      </div>
     </Modal>
   )
 }

@@ -15,12 +15,18 @@ import { requireAdminAuth } from '~/utils/requireAdminAuth'
 
 const Classes: NextPage = ({session}:any) => {
   
-  const form = useForm({
+  const form = useForm<{
+    searchFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+  }>({
     initialValues: {
         searchFilter: "",
         addClassModal: false,
         nameClass: "",
-        location: Location,
+        location: "ATAKUM",
         locationFilter: "tumu"
     }
   })
@@ -69,28 +75,19 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
-    location: {
-        ATAKUM: "ATAKUM";
-        PERA: "PERA";
-    };
+    location: "ATAKUM" | "PERA"
     locationFilter: string;
 }, (values: {
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
-    location: {
-        ATAKUM: "ATAKUM";
-        PERA: "PERA";
-    };
+    location: "ATAKUM" | "PERA"
     locationFilter: string;
 }) => {
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
-    location: {
-        ATAKUM: "ATAKUM";
-        PERA: "PERA";
-    };
+    location: "ATAKUM" | "PERA"
     locationFilter: string;
 }>}) => {
     const context = api.useContext()
@@ -121,7 +118,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
             <div className='mt-12'>
                 <Button onClick={()=>{
                   addClass({
-                    location: form.values.location as unknown as "ATAKUM" | "PERA",
+                    location: form.values.location,
                     name: form.values.nameClass
                 })
                   form.setFieldValue('addClassModal', false)  

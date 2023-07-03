@@ -14,8 +14,9 @@ export const userRouter = createTRPCRouter({
   addUser: publicProcedure.input(z.object({
     userName: z.string(),
     password: z.string(),
+    name: z.string()
   })).mutation(async ({ctx, input})=>{
-    const {password, userName}  = input
+    const {password, userName, name}  = input
     const user = await prisma.user.findFirst({
         where: {
             userNo: userName
@@ -36,7 +37,7 @@ export const userRouter = createTRPCRouter({
             userNo: userName,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             password: hash,
-
+            name: name,
         }
     })
   }),
@@ -45,8 +46,26 @@ export const userRouter = createTRPCRouter({
     return ctx.session.user
   }),
 
-  //GET - Admin deneme
-  getAdminInfo: adminProcedure.query(({ctx})=>{
-    return ctx.session.user
+  //GET - Bütün Kullanıcıların verisi
+  getAllUser: adminProcedure.query(async ({})=>{
+    return await prisma.user.findMany({})
+  }),
+
+  //GET - Bütün Öğrencilerin verisi
+  getAllStudents: adminProcedure.query(async({})=>{
+    return await prisma.user.findMany({
+      where: {
+        role: "STUDENT"
+      }
+    })
+  }),
+
+  //GET - Herhangi bir sınıfa dahil olmayan öğrencilerin verisi
+  getStudentsExcludeClass: adminProcedure.query(async()=>{
+    return await prisma.user.findMany({
+      where: {
+        class: null
+      }
+    })
   })
 });

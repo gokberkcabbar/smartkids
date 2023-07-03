@@ -65,7 +65,7 @@ model User {
     age         Int?
     schoolClass String?
     role        Role          @default(STUDENT)
-    class       Class?        @relation(fields: [classId], references: [id])
+    class       Class?        @relation(fields: [classId], references: [id], onDelete: SetNull)
     transaction Transaction[]
     accounts    Account[]
     sessions    Session[]

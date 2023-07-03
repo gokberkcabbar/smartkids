@@ -6,28 +6,19 @@ export const TabButton = ({form}:{form:UseFormReturnType<{
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }, (values: {
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }) => {
   searchFilter: string;
   addClassModal: boolean;
   nameClass: string;
-  location: {
-      ATAKUM: "ATAKUM";
-      PERA: "PERA";
-  };
+  location: "ATAKUM" | "PERA"
   locationFilter: string;
 }>}) => {
   return (
