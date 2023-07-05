@@ -8,15 +8,26 @@ import {
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
+import { generateRandomNumber } from "~/utils/generateUserNo";
 
 export const userRouter = createTRPCRouter({
   //POST - Yeni Kullanıcı kaydı
   addUser: publicProcedure.input(z.object({
     userName: z.string(),
     password: z.string(),
-    name: z.string()
+    name: z.string(),
+    age: z.number().nullish(),
+    className: z.string().nullish(),
+    fJob: z.string().nullish(),
+    fPhone: z.string().nullish(),
+    fName: z.string().nullish(),
+    mJob: z.string().nullish(),
+    mPhone: z.string().nullish(),
+    mName: z.string().nullish(),
+    schoolClass: z.string().nullish(),
+    tPhone: z.string().nullish()
   })).mutation(async ({ctx, input})=>{
-    const {password, userName, name}  = input
+    const {password, userName, name, age, className, fJob, fName, fPhone, mJob, mName, mPhone, schoolClass, tPhone}  = input
     const user = await prisma.user.findFirst({
         where: {
             userNo: userName
@@ -38,6 +49,21 @@ export const userRouter = createTRPCRouter({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             password: hash,
             name: name,
+            age: age,
+            class: className ?{
+              connect: {
+                name: className ? className : undefined
+              }
+            }: undefined,
+            fJob: fJob,
+            mJob: mJob,
+            mName: mName,
+            mPhone: mPhone,
+            fName: fName,
+            fPhone: fPhone,
+            role: "STUDENT",
+            schoolClass: schoolClass,
+            tPhone: tPhone,
         }
     })
   }),
@@ -56,6 +82,10 @@ export const userRouter = createTRPCRouter({
     return await prisma.user.findMany({
       where: {
         role: "STUDENT"
+      },
+      include: {
+        class: true,
+        transaction: true
       }
     })
   }),
@@ -67,5 +97,19 @@ export const userRouter = createTRPCRouter({
         class: null
       }
     })
+  }),
+
+  //GET - User No unique mi?
+  createUniqueUserNo: adminProcedure.query(async ()=>{
+    const isUnique = await prisma.user.findUnique({
+      where: {
+        userNo: generateRandomNumber().toString()
+      }
+    })
+    if(!isUnique){
+      return generateRandomNumber().toString()
+    }
+    return false
   })
+
 });
