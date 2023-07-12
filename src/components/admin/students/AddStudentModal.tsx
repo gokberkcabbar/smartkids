@@ -6,6 +6,8 @@ import { api } from '~/utils/api'
 import { generateRandomPassword } from '~/utils/generatePassword'
 import { AddStudentModalClassDropDownButton } from './AddStudentModalClassDropDownButton'
 
+
+
 export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
     isVerified: "tumu" | "kayit" | "onkayit";
     addStudentModal: boolean;
@@ -53,7 +55,9 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
         tPhone: undefined
     }
   })
-  const {data: createUserNo} = api.user.createUniqueUserNo.useQuery()
+  const {data: createUserNo} = api.user.createUniqueUserNo.useQuery(undefined, {
+    refetchOnWindowFocus: false
+  })
   const context = api.useContext() 
   const {mutate: addUser} = api.user.addUser.useMutation({
     onSuccess: ()=>{

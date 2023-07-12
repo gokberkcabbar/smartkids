@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { ActionIcon, Loader, Table } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { IconLogin } from '@tabler/icons-react';
+import { IconLogin, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react'
 import { api } from '~/utils/api'
@@ -30,6 +30,14 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
             context.user.invalidate()
         }
     })
+    const {mutate: deleteUser} = api.user.deleteUser.useMutation({
+        onSuccess: ()=>{
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            context.user.invalidate()
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            context.class.invalidate()
+        }
+    })
     const [rows, setRows] = useState<React.JSX.Element[]>([])
     const router = useRouter()
     useEffect(() => {
@@ -48,26 +56,23 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
              if(studentsForm.values.filterBy === "İsim / Numara" && val.name.includes(studentsForm.values.searchFilter)){
                 return val
              }
-             else if(studentsForm.values.filterBy === "Sınıf" && val.class && val.class.name.includes(studentsForm.values.searchFilter)){
+             else if(studentsForm.values.filterBy === "Sınıf" && val.class?.name.includes(studentsForm.values.searchFilter)){
                 return val
              
              }   
               
-             else if(!val.class && ("Ön Kayıt".includes(studentsForm.values.searchFilter) || "ön kayıt".includes(studentsForm.values.searchFilter))){
-                  return val
-              }
+
              else if(studentsForm.values.filterBy === "Anne Mesleği" && val.mJob?.includes(studentsForm.values.searchFilter)){
                 return val
              }
              else if(studentsForm.values.filterBy === "Baba Mesleği" && val.fJob?.includes(studentsForm.values.searchFilter)){
                 return val
              }
-             console.log(val)
-          }).map((element) => (
+        
+          }).map((element) => {
+            return (
               <tr key={element.name}>
-                <td><ActionIcon onClick={()=>router.push(`/protected/student/profile/${element.userNo}`)}>
-                <IconLogin size={24} />
-                  </ActionIcon></td>
+                <td className='flex flex-row gap-x-4 justify-center items-center mt-[-1px]'><><ActionIcon onClick={()=>router.push(`/protected/student/profile/${element.userNo}`)}><IconLogin size={30} /></ActionIcon> <ActionIcon onClick={()=>deleteUser({userNo: element.userNo})}><IconTrash size={30}/></ActionIcon></></td>
                 <td>{element.userNo}</td>
                 <td>{element.name}</td>
                 <td>{element.class?.name || "Ön Kayıt"}</td>
@@ -82,19 +87,20 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
                 <td>{element.mPhone}</td>
                 <td>{element.tPhone}</td>
               </tr>
-            )));
+            )}));
+            
       }
-    
-    }, [getAllStudents, studentsForm.values.filterBy, studentsForm.values.searchFilter, studentsForm.values.isVerified])
+      console.log(rows)
+    }, [getAllStudents, studentsForm.values])
     
   
     return (
       <>
           {isFetched ? (
-              <Table striped horizontalSpacing={20} highlightOnHover withBorder>
+              <Table striped horizontalSpacing={16} highlightOnHover withBorder>
               <thead>
                 <tr>
-                  <th>Profil Sayfası</th>
+                  <th>Profil / Sil</th>
                   <th>Öğrenci No</th>
                   <th>Öğrenci Adı Soyadı</th>
                   <th>Sınıf</th>

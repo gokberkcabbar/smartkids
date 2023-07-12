@@ -67,9 +67,19 @@ export const userRouter = createTRPCRouter({
         }
     })
   }),
-  //GET - Kullanıcı bilgilerini session'dan çekme
-  getUserInfo: protectedProcedure.query(({ctx})=>{
-    return ctx.session.user
+  //GET - Kullanıcı bilgilerini çekme
+  getUserInfo: publicProcedure.input(z.object({
+    userNo: z.string()
+  })).query(async ({input})=>{
+    return await prisma.user.findUnique({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        class: true,
+        transaction: true
+      }
+    })
   }),
 
   //GET - Bütün Kullanıcıların verisi
@@ -110,6 +120,30 @@ export const userRouter = createTRPCRouter({
       return generateRandomNumber().toString()
     }
     return false
+  }),
+
+  //DELETE - Kullanıcıyı silme
+  deleteUser: adminProcedure.input(z.object({
+    userNo: z.string()
+  })).mutation(async ({input})=>{
+    await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      data: {
+        class: {
+          disconnect: true
+        }
+      }
+    })
+    await prisma.user.delete({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        transaction: true
+      }
+    })
   })
 
 });

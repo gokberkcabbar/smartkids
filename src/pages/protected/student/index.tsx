@@ -11,7 +11,7 @@ const StudentPage : NextPage = ({session}:any) => {
 export async function getServerSideProps(context: any){
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const session = await getSession(context)
-    if (!session || session.user.role !== 'STUDENT'){
+    if (!session){
         return {
             redirect: {
                 destination: "/auth/errors",
