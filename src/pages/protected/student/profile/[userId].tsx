@@ -90,7 +90,7 @@ export async function getServerSideProps(context: any){
           name: result!.name,
           image: result?.image,
           userNo: result?.userNo,
-          classInfo: result?.class?.name,
+          classInfo: result?.class?.name ? result?.class?.name : "Ön Kayıt" ,
           fName: result?.fName,
           fJob: result?.fJob,
           fPhone: result?.fPhone,

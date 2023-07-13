@@ -9,6 +9,7 @@ import {
 import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
 import { generateRandomNumber } from "~/utils/generateUserNo";
+import { TransactionFor } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
   //POST - Yeni Kullanıcı kaydı
@@ -188,11 +189,7 @@ export const userRouter = createTRPCRouter({
         message: `${input.userNo} veya ADMIN kişisinin yetkisi gerekli`
       })
     }
-    const changedClass = await prisma.class.findUnique({
-      where: {
-        name: input.className ? input.className : undefined
-      },
-    })
+    
     await prisma.user.update({
       where: {
         userNo: input.userNo
@@ -207,7 +204,6 @@ export const userRouter = createTRPCRouter({
         mJob: input.mJob,
         mName: input.mName,
         mPhone: input.mPhone,
-        image: input.image,
         name: input.name,
         tPhone: input.tPhone,
         class: {
@@ -226,6 +222,71 @@ export const userRouter = createTRPCRouter({
         class: {
           connect: {
             name: input.className ? input.className : undefined
+          }
+        }
+      }
+    })
+    if(input.image){
+      const imageCloud = await ctx.cloudinary.uploader.upload(input.image)
+      await prisma.user.update({
+        where: {
+          userNo: input.userNo
+        },
+        data: {
+          image: imageCloud.url
+        }
+      })
+    }
+  }),
+
+  //UPDATE - Ödeme alma
+  updateTransaction: adminProcedure.input(z.object({
+    userNo: z.string(),
+    transactionFor: z.nativeEnum(TransactionFor),
+    amount: z.number()
+  })).mutation(async ({input}) => {
+    const userIdNullable = await prisma.user.findUnique({
+      where: {
+        userNo: input.userNo
+      },
+      select: {
+        id: true
+      }
+    })
+    const userId = userIdNullable?.id
+    const transactionExist = await prisma.transaction.findUnique({
+      where: {
+        transactionFor_userId: {
+          transactionFor: input.transactionFor,
+          userId: userId!
+        }
+      }
+    })
+    if(transactionExist){
+      return await prisma.transaction.update({
+        where: {
+          transactionFor_userId: {
+            transactionFor: input.transactionFor,
+            userId: userId!
+          }
+        },
+        data: {
+          amount: input.amount
+        }
+      })
+    }
+    return await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        transaction: true
+      },
+      data: {
+        transaction: {
+          create: {
+            amount: input.amount,
+            transactionFor: input.transactionFor
           }
         }
       }

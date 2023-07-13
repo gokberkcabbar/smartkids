@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
 import { useRouter } from 'next/router'
 import { Avatar, Badge, Button, Divider, Grid, Menu, Modal, PasswordInput, TextInput } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
 export const ProfileTab = ({props}: {props: PageProps}) => {
   const router = useRouter()
@@ -34,7 +34,8 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
         mPhone: props.userInfo.mPhone,
         tPhone: props.userInfo.tPhone,
         fJob: props.userInfo.fJob,
-        mJob: props.userInfo.mJob
+        mJob: props.userInfo.mJob,
+        image: props.userInfo.image
     }
   })
   useEffect(() => {
@@ -67,7 +68,20 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
   
    }   , [classes])
 
-    
+   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = (e: ProgressEvent<FileReader>) => {
+        const base64Data = e.target?.result as string;
+        form.setFieldValue('image', base64Data)
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
   
   return (
     <>
@@ -75,9 +89,27 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
             <div className='flex flex-col w-full h-full [@media(min-width:768px)]:w-[50%] items-center'>
 
             <div className='flex [@media(min-width:768px)]:flex-row flex-col w-full justify-between items-center'>
-                <div className='relative w-1/2 [@media(min-width:768px)]:w-3/4'>
-                <Avatar onMouseEnter={()=>setHoverImage(true)} radius={300} size={300} src={props.userInfo.image || "https://static.thenounproject.com/png/1211233-200.png"} />
-                <Button onMouseLeave={()=>setHoverImage(false)} className={`absolute h-full top-0 left-0 w-[300px] bg-slate-500/10 z-30 bottom-0 ${hoverImage ? "block hover:bg-slate-500/10" : "hidden"}`}>+</Button>
+                <div className='relative w-1/2 flex justify-center items-center [@media(min-width:768px)]:w-3/4'>
+                <div className='relative hidden [@media(min-width:768px)]:block'>
+                    <Avatar onMouseEnter={()=>setHoverImage(true)} radius={300} size={300} src={form.values.image || "https://static.thenounproject.com/png/1211233-200.png"} />   
+                    <Button radius={300} onClick={()=>{
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        fileInput.addEventListener('change', handleImageUpload as unknown as EventListener);
+                        fileInput.click();
+                    }} onMouseLeave={()=>setHoverImage(false)} className={`absolute h-full top-0 left-0 right-0 bg-slate-500/10 z-30 bottom-0 ${hoverImage ? "block hover:bg-slate-500/10" : "hidden"}`}>+</Button>    
+                </div>
+                <div className='relative block [@media(min-width:768px)]:hidden'>
+                    <Avatar onMouseEnter={()=>setHoverImage(true)} radius={150} size={150} src={form.values.image || "https://static.thenounproject.com/png/1211233-200.png"} />   
+                    <Button radius={150} onClick={()=>{
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        fileInput.addEventListener('change', handleImageUpload as unknown as EventListener);
+                        fileInput.click();
+                    }} onMouseLeave={()=>setHoverImage(false)} className={`absolute h-full top-0 left-0 right-0 bg-slate-500/10 z-30 bottom-0 ${hoverImage ? "block hover:bg-slate-500/10" : "hidden"}`}>+</Button>    
+                </div>
                 </div>
                 <div className='flex flex-col gap-4'>
                     <TextInput {...form.getInputProps('name')} label="Ad Soyad" />
@@ -145,7 +177,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                             mJob: form.values.mJob,
                             fName: form.values.fName,
                             fPhone: form.values.fPhone,
-                            image: undefined,
+                            image: form.isDirty('image') ? form.values.image : undefined,
                             mName: form.values.mName,
                             mPhone: form.values.mPhone,
                             tPhone: form.values.tPhone

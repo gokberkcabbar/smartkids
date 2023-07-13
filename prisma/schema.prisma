@@ -105,11 +105,12 @@ model Transaction {
     id             String         @id @default(cuid())
     user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
     transactionFor TransactionFor
-    paid           Boolean
-    amount         Float?
+    amount         Float
     userId         String
 
+    @@unique([transactionFor, userId])
     @@index([userId])
+    @@index([transactionFor])
 }
 
 enum TransactionFor {

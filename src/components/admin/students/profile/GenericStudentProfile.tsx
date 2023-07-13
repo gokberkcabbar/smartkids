@@ -6,6 +6,7 @@ import { HeaderBar } from '~/components/HeaderBar'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
 import { useForm } from '@mantine/form'
 import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
+import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
 
 
 export const GenericStudentProfile = ({props}:{props:PageProps}) => {
@@ -55,7 +56,13 @@ export const GenericStudentProfile = ({props}:{props:PageProps}) => {
         <div className='flex flex-col w-full h-full'>
             <ProfileTab props={props}/>
         </div>
-        ) : (<div></div>)}
+        ) : form.values.buttonSelected === "odeme" ? (
+          <div className='flex flex-col w-full h-full'>
+            <OdemeTab props={props}/>
+          </div>
+        ) : (
+          <div></div>
+        )}
     </AppShell>
   )
 }

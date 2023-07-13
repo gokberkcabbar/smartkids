@@ -21,10 +21,16 @@ import { type Session } from "next-auth";
 import { getServerAuthSession } from "../auth";
 import { prisma } from "../db";
 import { Role } from "@prisma/client";
-
+import {v2 as cloudinary} from 'cloudinary'
 type CreateContextOptions = {
   session: Session | null;
 };
+
+cloudinary.config({ 
+  cloud_name: 'dkqt9cxba', 
+  api_key: '912967318262769', 
+  api_secret: 'BbtzaecFUjGZ7B8qGeDRpEu9f5M' 
+});
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -40,6 +46,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    cloudinary
   };
 };
 

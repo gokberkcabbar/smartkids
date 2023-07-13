@@ -77,7 +77,6 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
                 <td>{element.name}</td>
                 <td>{element.class?.name || "Ön Kayıt"}</td>
                 <td>{element.age}</td>
-                <td>{element.transaction[-1]?.paid ? element.transaction[-1]?.transactionFor : element.transaction[-1]?.paid}</td>
                 <td>{element.schoolClass}</td>
                 <td>{element.fName}</td>
                 <td>{element.fJob}</td>
@@ -105,7 +104,6 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
                   <th>Öğrenci Adı Soyadı</th>
                   <th>Sınıf</th>
                   <th>Yaş</th>
-                  <th>En son yapılan Ödeme</th>
                   <th>Kaçıncı Sınıf</th>
                   <th>Baba Adı</th>
                   <th>Baba Mesleği</th>
