@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
@@ -69,17 +71,27 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
    }   , [classes])
 
    const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
+    const file: File | undefined = event.target.files?.[0];
+  
     if (file) {
       const reader = new FileReader();
-
+  
       reader.onloadend = (e: ProgressEvent<FileReader>) => {
         const base64Data = e.target?.result as string;
-        form.setFieldValue('image', base64Data)
+        form.setFieldValue('image', base64Data);
       };
-
-      reader.readAsDataURL(file);
+  
+      if (file.type && file.type.includes('image')) {
+        reader.readAsDataURL(file);
+      } else if (file instanceof Blob) {
+        // Handle capturing image from camera or photo library on mobile
+        const fileReader = new FileReader();
+        fileReader.onloadend = (e: ProgressEvent<FileReader>) => {
+          const base64Data = e.target?.result as string;
+          form.setFieldValue('image', base64Data);
+        };
+        fileReader.readAsDataURL(file);
+      }
     }
   };
   
