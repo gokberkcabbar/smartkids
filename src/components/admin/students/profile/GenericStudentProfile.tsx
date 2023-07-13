@@ -1,23 +1,36 @@
-import { ActionIcon, Button, Divider, Navbar, Text } from '@mantine/core'
+import { ActionIcon, AppShell, Avatar, Button, Divider, Navbar, Text } from '@mantine/core'
 import { IconChecklist, IconPencil, IconTrash } from '@tabler/icons-react'
 import { IconAddressBook, IconCurrencyLira } from '@tabler/icons-react'
 import React from 'react'
+import { HeaderBar } from '~/components/HeaderBar'
+import { PageProps } from '~/pages/protected/student/profile/[userId]'
+import { useForm } from '@mantine/form'
+import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 
-export const GenericStudentProfile = () => {
+
+export const GenericStudentProfile = ({props}:{props:PageProps}) => {
+  const form = useForm<{
+    buttonSelected: "odeme" | "profil" | "egitim"
+  }>({
+    initialValues: {
+        buttonSelected: "profil"
+    }
+  })
   return (
-    <>
-    <Navbar height={'100%'} p="xs" width={{ base: 50, sm: 200 }}>
+    <AppShell
+     navbar={
+        <Navbar height={'calc(100vh - 60px)'} p="xs" width={{ base: 50, sm: 200 }}>
       <Navbar.Section className='flex flex-col gap-8' grow mt="md">
-        <Button variant='light' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconCurrencyLira size={24}/>}>Ödeme Tablosu</Button>
-        <ActionIcon variant='filled' color='violet' className='block [@media(min-width:768px)]:hidden'>
+        <Button variant={form.values.buttonSelected === "odeme" ? "filled" : "light"} fullWidth onClick={()=>form.setFieldValue('buttonSelected', "odeme")} className='hidden [@media(min-width:768px)]:block' leftIcon={<IconCurrencyLira size={24}/>}>Ödeme Tablosu</Button>
+        <ActionIcon variant={form.values.buttonSelected === "odeme" ? "filled" : "light"} onClick={()=>form.setFieldValue('buttonSelected', "odeme")} color='violet' className='block [@media(min-width:768px)]:hidden'>
             <IconCurrencyLira size={24} />
         </ActionIcon>
-        <Button variant='light' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconAddressBook size={24}/>}>Profil Bilgileri</Button>
-        <ActionIcon variant='filled' color='violet' className='block [@media(min-width:768px)]:hidden'>
+        <Button variant={form.values.buttonSelected === "profil" ? "filled" : "light"} fullWidth onClick={()=>form.setFieldValue('buttonSelected', "profil")} className='hidden [@media(min-width:768px)]:block' leftIcon={<IconAddressBook size={24}/>}>Profil Bilgileri</Button>
+        <ActionIcon variant={form.values.buttonSelected === "profil" ? "filled" : "light"} onClick={()=>form.setFieldValue('buttonSelected', "profil")} color='violet' className='block [@media(min-width:768px)]:hidden'>
             <IconAddressBook size={24} />
         </ActionIcon>
-        <Button variant='light' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconChecklist size={24}/>}>Eğitim</Button>
-        <ActionIcon variant='filled' color='violet' className='block [@media(min-width:768px)]:hidden'>
+        <Button variant={form.values.buttonSelected === "egitim" ? "filled" : "light"} fullWidth onClick={()=>form.setFieldValue('buttonSelected', "egitim")} className='hidden [@media(min-width:768px)]:block' leftIcon={<IconChecklist size={24}/>}>Eğitim</Button>
+        <ActionIcon variant={form.values.buttonSelected === "egitim" ? "filled" : "light"} onClick={()=>form.setFieldValue('buttonSelected', "egitim")} color='violet' className='block [@media(min-width:768px)]:hidden'>
             <IconChecklist size={24} />
         </ActionIcon>
       </Navbar.Section>
@@ -25,17 +38,24 @@ export const GenericStudentProfile = () => {
       
       <Navbar.Section className='flex flex-col gap-8' mt="md">
         <Divider />
-        <Button variant='filled' color='red' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconCurrencyLira size={24}/>}>Sil</Button>
+        <Button variant='filled' color='red' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconTrash size={24}/>}>Sil</Button>
         <ActionIcon variant='filled' color='red' className='block [@media(min-width:768px)]:hidden'>
             <IconTrash size={24} />
         </ActionIcon>
-        <Button variant='subtle' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconPencil size={24}/>}>Sınıf Değiştir</Button>
-        <ActionIcon variant='subtle' color='violet' className='block [@media(min-width:768px)]:hidden'>
-            <IconPencil size={24} />
-        </ActionIcon>
       </Navbar.Section>
     </Navbar>
-
-    </>
+     }
+     styles={(theme) => ({
+        main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
+      })}
+      padding='md'
+      header={<HeaderBar />}
+    >
+        {form.values.buttonSelected === "profil" ? (
+        <div className='flex flex-col w-full h-full'>
+            <ProfileTab props={props}/>
+        </div>
+        ) : (<div></div>)}
+    </AppShell>
   )
 }

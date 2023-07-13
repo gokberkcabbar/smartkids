@@ -144,6 +144,92 @@ export const userRouter = createTRPCRouter({
         transaction: true
       }
     })
+  }),
+
+  //UPDATE - Şifre Güncelleme
+  updatePassword: protectedProcedure.input(z.object({
+    userNo: z.string(),
+    password: z.string()
+  })).mutation(async ({ctx, input})=>{
+    if(ctx.session.user.userNo !== input.userNo){
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: `Sadece ${input.userNo} kullanıcısı şifresini değiştirebilir.`
+      })
+    }
+    const hash = bcrpyt.hashSync(input.password, 10)
+    return await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      data: {
+        password: hash
+      }
+    })
+  }),
+
+  // Update - Öğrenci Bilgileri Güncelleme
+  updateStudentInfo: protectedProcedure.input(z.object({
+    name: z.string(),
+    userNo: z.string(),
+    className: z.string().nullish(),
+    fName: z.string().nullish(),
+    fPhone: z.string().nullish(),
+    fJob: z.string().nullish(),
+    mName: z.string().nullish(),
+    mPhone: z.string().nullish(),
+    mJob: z.string().nullish(),
+    tPhone: z.string().nullish(),
+    image: z.string().nullish()
+  })).mutation(async ({ctx, input})=>{
+    if(!(ctx.session.user.role === "ADMIN" || ctx.session.user.userNo === input.userNo)){
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: `${input.userNo} veya ADMIN kişisinin yetkisi gerekli`
+      })
+    }
+    const changedClass = await prisma.class.findUnique({
+      where: {
+        name: input.className ? input.className : undefined
+      },
+    })
+    await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        class: true
+      },
+      data: {
+        fJob: input.fJob,
+        fName: input.fName,
+        fPhone: input.fPhone,
+        mJob: input.mJob,
+        mName: input.mName,
+        mPhone: input.mPhone,
+        image: input.image,
+        name: input.name,
+        tPhone: input.tPhone,
+        class: {
+          disconnect: true
+        }
+      }
+    })
+    await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        class: true
+      },
+      data: {
+        class: {
+          connect: {
+            name: input.className ? input.className : undefined
+          }
+        }
+      }
+    })
   })
 
 });
