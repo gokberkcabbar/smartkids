@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { ActionIcon, Checkbox, Loader, Table } from '@mantine/core'
@@ -7,6 +9,7 @@ import { IconTrash, IconUserCircle } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
+import { notifications } from '@mantine/notifications';
 
 export const StudentsInClassDetail = ({form, userInfo}:{form:UseFormReturnType<{
     studentSearch: string;
@@ -22,10 +25,22 @@ export const StudentsInClassDetail = ({form, userInfo}:{form:UseFormReturnType<{
   const [rows, setRows] = useState<React.JSX.Element[]>([])
   const router = useRouter()
   const context = api.useContext()
-  const {mutate:deleteStudentFromClass}  = api.class.deleteStudentFromClass.useMutation({
+  const {mutate:deleteStudentFromClass, isLoading: loadingDeleteStudentFromClass}  = api.class.deleteStudentFromClass.useMutation({
     onSuccess: ()=>{
         context.class.invalidate()
         context.user.invalidate()
+        notifications.show({
+            message: "Öğrenci başarıyla silindi",
+            color: 'green',
+            autoClose: 2000,
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
     }
   })
   useEffect(() => {
@@ -54,8 +69,8 @@ export const StudentsInClassDetail = ({form, userInfo}:{form:UseFormReturnType<{
                         <ActionIcon onClick={()=>router.push(`/protected/student/profile/${element.userNo}`)}>
                             <IconUserCircle size={20} />
                         </ActionIcon>
-                        <ActionIcon onClick={()=>deleteStudentFromClass({userNo: element.userNo})}>
-                            <IconTrash size={20} />
+                        <ActionIcon disabled={loadingDeleteStudentFromClass} onClick={()=>deleteStudentFromClass({userNo: element.userNo})}>
+                            {loadingDeleteStudentFromClass ? <Loader /> : <IconTrash size={20} />}
                         </ActionIcon>
                     </td>
                 </tr>

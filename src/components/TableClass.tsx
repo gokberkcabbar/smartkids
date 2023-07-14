@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { ActionIcon, Button, Loader, Modal, Select, Table, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
@@ -8,6 +10,7 @@ import { Location, User } from '@prisma/client';
 import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 import { StudentsInClassDetail } from './StudentsInClassDetail';
 import { StudentsAddToClassTable } from './StudentsAddToClassTable';
+import { notifications } from '@mantine/notifications';
 
 export const TableClass = ({form}:{form:UseFormReturnType<{
   searchFilter: string;
@@ -46,6 +49,18 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
     onSuccess: ()=>{
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       context.class.invalidate()
+      notifications.show({
+        message: "Sınıf başarıyla silindi",
+        color: 'green',
+        autoClose: 2000
+      })
+    },
+    onError: (error)=>{
+      notifications.show({
+        message: error.message,
+        color: 'red',
+        autoClose: 2000
+      })
     }
   })
   const [rows, setRows] = useState<React.JSX.Element[]>([])

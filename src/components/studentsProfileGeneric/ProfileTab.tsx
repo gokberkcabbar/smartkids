@@ -4,9 +4,11 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
 import { useRouter } from 'next/router'
-import { Avatar, Badge, Button, Divider, Grid, Menu, Modal, PasswordInput, TextInput } from '@mantine/core'
+import { Avatar, Badge, Button, Divider, Grid, Loader, Menu, Modal, PasswordInput, TextInput } from '@mantine/core'
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
+import {notifications} from '@mantine/notifications'
+
 export const ProfileTab = ({props}: {props: PageProps}) => {
   const router = useRouter()
   const {parsedURL} = router.query
@@ -14,11 +16,26 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
   const {data: classes} = api.class.getClasses.useQuery(undefined, {
     refetchOnWindowFocus: false
   })
-  const {mutate: updateStudentInfo} = api.user.updateStudentInfo.useMutation({
+  const {mutate: updateStudentInfo, isLoading: loadingUpdateStudentInfo} = api.user.updateStudentInfo.useMutation({
     onSuccess: ()=>{
         context.user.invalidate()
         context.class.invalidate()
-        router.reload()
+        notifications.show({
+            message: "Kullanıcı bilgileri güncellendi",
+            color: 'green',
+            autoClose: 2000,
+            onClose: ()=>{
+                router.reload()
+            }
+        })
+    },
+    onError: (error) => {
+        const errorMessage = error.message
+        notifications.show({
+            color: 'red',
+            message: errorMessage,
+            autoClose: 2000,
+        })
     }
   })
   const [atakumClasses, setAtakumClasses] = useState<React.JSX.Element[]>([])
@@ -194,7 +211,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                             mPhone: form.values.mPhone,
                             tPhone: form.values.tPhone
                         })
-                    }} disabled={!form.isDirty()}>Bilgileri Güncelle</Button>
+                    }} disabled={!form.isDirty() || loadingUpdateStudentInfo}>{loadingUpdateStudentInfo ? <Loader /> : "Bilgileri Güncelle"}</Button>
                 </Grid.Col>
             </Grid>
             </div>

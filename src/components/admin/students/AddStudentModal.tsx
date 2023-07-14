@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Button, Modal, NumberInput, TextInput, Title } from '@mantine/core'
+import { Button, Loader, Modal, NumberInput, TextInput, Title } from '@mantine/core'
 import { UseFormReturnType, useForm } from '@mantine/form'
 import React, { useEffect } from 'react'
 import { api } from '~/utils/api'
 import { generateRandomPassword } from '~/utils/generatePassword'
 import { AddStudentModalClassDropDownButton } from './AddStudentModalClassDropDownButton'
+import { notifications } from '@mantine/notifications'
 
 
 
@@ -59,13 +62,27 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
     refetchOnWindowFocus: false
   })
   const context = api.useContext() 
-  const {mutate: addUser} = api.user.addUser.useMutation({
+  const {mutate: addUser, isLoading: loadingAddUser} = api.user.addUser.useMutation({
     onSuccess: ()=>{
         context.user.invalidate()
         context.class.invalidate()
-        classForm.reset()
-        newStudentForm.reset()
-        studentsForm.setFieldValue('addStudentModal', false)
+        notifications.show({
+            message: "Öğrenci başarıyla eklendi",
+            color: 'green',
+            autoClose: 1000,
+            onClose: ()=>{
+                classForm.reset()
+                newStudentForm.reset()
+                studentsForm.setFieldValue('addStudentModal', false)
+            }
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
     }
   })
   const classForm = useForm({
@@ -119,7 +136,7 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
             <TextInput {...newStudentForm.getInputProps('tPhone')} label="Üçüncü telefon numarası" className='mt-8' />
                 </div>
             </div>
-            <Button disabled={newStudentForm.values.name === ""} className='mt-8' onClick={()=>{
+            <Button disabled={newStudentForm.values.name === "" || loadingAddUser} className='mt-8' onClick={()=>{
                 addUser({
                     name: newStudentForm.values.name,
                     password: newStudentForm.values.password,
@@ -135,7 +152,7 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
                     schoolClass: newStudentForm.values.schoolClass,
                     tPhone: newStudentForm.values.tPhone,
                 })
-            }}>Kaydet</Button>
+            }}>{loadingAddUser ? <Loader /> : "Kaydet"}</Button>
         </div>
     </Modal>
   )

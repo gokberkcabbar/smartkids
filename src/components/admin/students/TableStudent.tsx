@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { ActionIcon, Loader, Table } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
 import { IconLogin, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react'
@@ -30,12 +33,24 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
             context.user.invalidate()
         }
     })
-    const {mutate: deleteUser} = api.user.deleteUser.useMutation({
+    const {mutate: deleteUser, isLoading: loadingDeleteUser} = api.user.deleteUser.useMutation({
         onSuccess: ()=>{
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             context.user.invalidate()
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             context.class.invalidate()
+            notifications.show({
+              message: 'Öğrenci başarıyla silindi',
+              color: 'green',
+              autoClose: 2000
+            })
+        },
+        onError: (error)=>{
+          notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+          })
         }
     })
     const [rows, setRows] = useState<React.JSX.Element[]>([])
@@ -72,7 +87,7 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
           }).map((element) => {
             return (
               <tr key={element.name}>
-                <td className='flex flex-row gap-x-4 justify-center items-center mt-[-1px]'><><ActionIcon onClick={()=>router.push(`/protected/student/profile/${element.userNo}`)}><IconLogin size={30} /></ActionIcon> <ActionIcon onClick={()=>deleteUser({userNo: element.userNo})}><IconTrash size={30}/></ActionIcon></></td>
+                <td className='flex flex-row gap-x-4 justify-center items-center mt-[-1px]'><><ActionIcon onClick={()=>router.push(`/protected/student/profile/${element.userNo}`)}><IconLogin size={30} /></ActionIcon> <ActionIcon disabled={loadingDeleteUser} onClick={()=>deleteUser({userNo: element.userNo})}><IconTrash size={30}/></ActionIcon></></td>
                 <td>{element.userNo}</td>
                 <td>{element.name}</td>
                 <td>{element.class?.name || "Ön Kayıt"}</td>

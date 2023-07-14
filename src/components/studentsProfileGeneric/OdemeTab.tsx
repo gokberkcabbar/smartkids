@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Box, Button, Menu, Modal, NumberInput, Table } from '@mantine/core'
+import { Box, Button, Loader, Menu, Modal, NumberInput, Table } from '@mantine/core'
 import { TransactionFor } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
+import { notifications } from '@mantine/notifications'
+import { useRouter } from 'next/router'
 export const OdemeTab = ({props}:{props: PageProps}) => {
 const [rows, setRows] = useState<React.JSX.Element[]>([])
 const transactionForArray = Object.values(TransactionFor)
@@ -32,7 +36,7 @@ useEffect(() => {
                     }
                     return "0 ₺"
                 }
-                return "N/A"
+                return null
             })}
         </td>
     )}))
@@ -112,10 +116,26 @@ useEffect(() => {
    )
 }, [transactionForArray])
 const context = api.useContext()
-const {mutate: updateTransaction} = api.user.updateTransaction.useMutation({
+const router = useRouter()
+const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
     onSuccess: ()=>{
         context.user.invalidate()
-        form.setFieldValue('newTransaction', false)
+        notifications.show({
+            message: 'Ödeme başarıyla eklendi',
+            color:'green',
+            autoClose: 1000,
+            onClose: ()=>{
+                form.setFieldValue('newTransaction', false)
+                router.reload()
+            }
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
     }
 })
 return (
@@ -132,13 +152,13 @@ return (
             </Menu>
             <NumberInput {...form.getInputProps('amount')} />
         </div>
-        <Button className='mt-10' onClick={()=>{
+        <Button disabled={loadingUpdateTransaction} className='mt-10' onClick={()=>{
             updateTransaction({
                 amount: form.values.amount,
                 transactionFor: form.values.transactionTo,
                 userNo: userNo
             })
-        }} color='cyan'>Ödemeyi Oluştur</Button>
+        }} color='cyan'>{loadingUpdateTransaction ? <Loader /> : "Ödemeyi Oluştur"}</Button>
         </div>
     </Modal>
 )

@@ -1,4 +1,6 @@
-import { ActionIcon, Button, Container, Group, Select, TextInput } from '@mantine/core'
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { ActionIcon, Button, Container, Group, Loader, Select, TextInput } from '@mantine/core'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
 import React, { useState } from 'react'
 import { ClassCard } from '~/components/ClassCard'
@@ -12,6 +14,7 @@ import { api } from '~/utils/api'
 import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
 import { requireAdminAuth } from '~/utils/requireAdminAuth'
+import { notifications } from '@mantine/notifications'
 
 const Classes: NextPage = ({session}:any) => {
   
@@ -91,10 +94,22 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     locationFilter: string;
 }>}) => {
     const context = api.useContext()
-    const {mutate: addClass} = api.class.addClass.useMutation({
+    const {mutate: addClass, isLoading: loadingAddClass} = api.class.addClass.useMutation({
         onSuccess: ()=>{
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             context.class.invalidate()
+            notifications.show({
+                message: "Sınıf başarıyla oluşturuldu",
+                color: 'green',
+                autoClose: 2000
+            })
+        },
+        onError: (error)=>{
+            notifications.show({
+                message: error.message,
+                color: 'red',
+                autoClose: 2000
+            })
         }
     })
     return (
@@ -122,7 +137,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
                     name: form.values.nameClass
                 })
                   form.setFieldValue('addClassModal', false)  
-                }} disabled={form.values.nameClass === ""}>Oluştur</Button>
+                }} disabled={form.values.nameClass === "" || loadingAddClass}>{loadingAddClass ? <Loader /> : "Oluştur"}</Button>
             </div>
         </Modal>
     </>
