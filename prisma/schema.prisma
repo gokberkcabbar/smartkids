@@ -88,12 +88,13 @@ enum Role {
 }
 
 model Class {
-    id        String   @id @default(cuid())
-    name      String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id        String     @id @default(cuid())
+    name      String     @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
     user      User[]
     location  Location
+    ClassPage ClassPage?
 }
 
 enum Location {
@@ -111,6 +112,33 @@ model Transaction {
     @@unique([transactionFor, userId])
     @@index([userId])
     @@index([transactionFor])
+}
+
+model ClassPage {
+    id       String    @id @default(cuid())
+    class    Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+    elements Element[]
+    classId  String
+
+    @@unique([classId])
+}
+
+model Element {
+    id          String      @id @default(cuid())
+    elementType elementType @default(TEXT)
+    layout      Json
+    videoLink   String?
+    imageLink   String?
+    ClassPage   ClassPage   @relation(fields: [classPageId], references: [id], onDelete: Cascade)
+    classPageId String
+
+    @@index([classPageId])
+}
+
+enum elementType {
+    TEXT
+    VIDEO
+    MIXED
 }
 
 enum TransactionFor {

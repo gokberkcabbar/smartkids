@@ -3,20 +3,14 @@ import { IconChecklist, IconPencil, IconTrash } from '@tabler/icons-react'
 import { IconAddressBook, IconCurrencyLira } from '@tabler/icons-react'
 import React from 'react'
 import { HeaderBar } from '~/components/HeaderBar'
-import { PageProps } from '~/pages/protected/student/profile/[userId]'
+import { PageProps, studentProfileAppShellProp } from '~/pages/protected/student/profile/[userId]'
 import { useForm } from '@mantine/form'
 import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
 
 
-export const GenericStudentProfile = ({props}:{props:PageProps}) => {
-  const form = useForm<{
-    buttonSelected: "odeme" | "profil" | "egitim"
-  }>({
-    initialValues: {
-        buttonSelected: "profil"
-    }
-  })
+export const GenericStudentProfile = ({form, children}:{form: studentProfileAppShellProp, children: React.ReactNode}) => {
+  
   return (
     <AppShell
      navbar={
@@ -52,17 +46,7 @@ export const GenericStudentProfile = ({props}:{props:PageProps}) => {
       padding='md'
       header={<HeaderBar />}
     >
-        {form.values.buttonSelected === "profil" ? (
-        <div className='flex flex-col w-full h-full'>
-            <ProfileTab props={props}/>
-        </div>
-        ) : form.values.buttonSelected === "odeme" ? (
-          <div className='flex flex-col w-full h-full'>
-            <OdemeTab props={props}/>
-          </div>
-        ) : (
-          <div></div>
-        )}
+        {children}
     </AppShell>
   )
 }

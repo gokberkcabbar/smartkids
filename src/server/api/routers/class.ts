@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -9,7 +13,7 @@ import {
 import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
 import { Location } from "@prisma/client";
-
+import { dbLayoutType, layoutParser } from "~/utils/layoutParser";
 export const classRouter = createTRPCRouter({
     // POST - Yeni Sınıf oluştur
     addClass: adminProcedure.input(z.object({
@@ -123,6 +127,79 @@ export const classRouter = createTRPCRouter({
             data: {
                 class: {
                     disconnect: true
+                }
+            }
+        })
+    }),
+    
+    // GET - Sınıf profil sayfası
+    getClasssProfilePage: protectedProcedure.input(z.object({
+        className: z.string()
+    })).query(async({ctx, input})=>{
+        
+        const elements = await prisma.class.findUnique({
+            where: {
+                name: input.className
+            },
+            include: {
+                ClassPage: {
+                    include: {
+                        elements: true
+                    }
+                }
+            }
+        })
+        
+        if(elements && elements.ClassPage){
+            const parsedLayouts = elements.ClassPage.elements.filter((val)=>val !== undefined).map((val)=>{
+                if(val.layout){
+                    const parsedLayout = layoutParser({dbLayout: JSON.parse(val.layout as string) as unknown as dbLayoutType, userRole: ctx.session.user.role})
+                    return parsedLayout
+                }
+                else{
+                    return null
+                }
+            }).filter((parsedLayout)=> parsedLayout !== null) as dbLayoutType[]
+            return parsedLayouts
+        }
+        else{
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: 'Herhangi bir element bulunamadı'
+            })
+        }
+    }),
+    // UPDATE - Sınıf profil sayfası oluştur
+    createClassProfilePage: adminProcedure.input(z.object({
+        className: z.string()
+    })).mutation(async ({input})=>{
+        const initialLayout = {"layouts":{"lg":[{"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false},{"w":4,"h":5,"x":4,"y":0,"i":"2","minW":1,"minH":1,"static":false},{"w":4,"h":5,"x":4,"y":0,"i":"3","minW":1,"minH":1,"static":false}]}}
+        const className = await prisma.class.findUnique({
+            where: {
+                name: input.className
+            },
+            select: {
+                name: true
+            }
+        })
+
+        if(!className){
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: "Sınıf bulunamadı"
+            })
+        }
+        return await prisma.classPage.create({
+            data: {
+                class: {
+                    connect: {
+                        name: className.name
+                    }
+                },
+                elements: {
+                    create: {
+                        layout: JSON.stringify(initialLayout)
+                    }
                 }
             }
         })

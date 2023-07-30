@@ -299,7 +299,7 @@ const NewPayment = ({newPaymentModal, setNewPaymentModal, transactionForArray}:{
                         <Menu.Target>
                             <Button>{form.values.transactionTo}</Button>
                         </Menu.Target>
-                        <Menu.Dropdown style={{zIndex: 3000}} className='flex z-[3000]'>
+                        <Menu.Dropdown style={{zIndex: 3000, position:'absolute'}} >
                             {rows}
                         </Menu.Dropdown>
                     </Menu>

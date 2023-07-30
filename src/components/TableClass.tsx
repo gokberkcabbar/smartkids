@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { ActionIcon, Button, Loader, Modal, Select, Table, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { useEffect, useState } from 'react';
+import React, { SetStateAction, useEffect, useState } from 'react';
 import { api } from '~/utils/api';
 import { useForm } from '@mantine/form';
 import { Location, User } from '@prisma/client';
@@ -11,7 +12,21 @@ import { IconPencil, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react
 import { StudentsInClassDetail } from './StudentsInClassDetail';
 import { StudentsAddToClassTable } from './StudentsAddToClassTable';
 import { notifications } from '@mantine/notifications';
+import { IconAppWindow } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
+import { EgitimTab } from './studentsProfileGeneric/EgitimTab';
 
+
+export type classPageFormTypes = UseFormReturnType<{
+  className: string;
+  isOpen: boolean;
+}, (values: {
+  className: string;
+  isOpen: boolean;
+}) => {
+  className: string;
+  isOpen: boolean;
+}>
 export const TableClass = ({form}:{form:UseFormReturnType<{
   searchFilter: string;
   addClassModal: boolean;
@@ -64,6 +79,15 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
     }
   })
   const [rows, setRows] = useState<React.JSX.Element[]>([])
+  const classPageForm = useForm<{
+    className: string,
+    isOpen: boolean,
+  }>({
+    initialValues: {
+      className: "",
+      isOpen: false,
+    }
+  })
   useEffect(() => {
     if(elements){
         setRows(elements.filter((val)=>{
@@ -85,7 +109,9 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
               <td>{element.name}</td>
               <td>{element.location}</td>
               <td>{element.user.length}</td>
-              <td className='flex flex-row gap-4 items-center mt-[-1px]'><><ActionIcon onClick={()=>{
+              <td className='flex flex-row gap-4 items-center mt-[-1px]'><><ActionIcon onClick={()=>{ 
+              classPageForm.setFieldValue('className', element.name)
+              classPageForm.setFieldValue('isOpen', true)}}><IconAppWindow size={30} /></ActionIcon><ActionIcon onClick={()=>{
               formClassDetail.setFieldValue('modalClassDetail', true)
               formClassDetail.setFieldValue('nameClass', element.name)
             }}><IconPencil size={30} /></ActionIcon> <ActionIcon onClick={()=>deleteClass({name: element.name})}><IconTrash size={30}/></ActionIcon></></td>
@@ -114,6 +140,7 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
             <Loader />
         )}
         <ClassDetailModal formClassDetail={formClassDetail}/>
+        <EgitimTab {...classPageForm}/>
     </>
   );
 }
@@ -132,6 +159,7 @@ const ClassDetailModal = ({formClassDetail}:{formClassDetail:UseFormReturnType<{
   location: "ATAKUM" | "PERA"
 }>}) => {
   const {data, isFetched} = api.class.getClassByName.useQuery({name: formClassDetail.values.nameClass})
+  const [className, setClassName] = useState("")
   const form = useForm({
     initialValues: {
       studentSearch: "",
@@ -142,45 +170,60 @@ const ClassDetailModal = ({formClassDetail}:{formClassDetail:UseFormReturnType<{
     if(data){
       formClassDetail.setFieldValue('nameClass', data.name)
       formClassDetail.setFieldValue('location', data.location)
+      setClassName(data.name)
     }
   
   }, [data])
+  const router = useRouter()
   
   return (
     <>
     <Modal size="50%" title="Sınıf Detayı" opened={formClassDetail.values.modalClassDetail} onClose={()=>formClassDetail.setFieldValue('modalClassDetail', false)}>
-      <div className='flex w-full justify-between items-end'>
-                <div className='md:w-1/3 w-1/2'>
-                    <TextInput {...formClassDetail.getInputProps('nameClass')} />
-                </div>
-                <div className='md:w-1/6 w-1/2'>
-                    <Select zIndex={100} dropdownPosition='bottom' data={[
-                        {
-                            value: 'ATAKUM', label: 'Atakum'
-                        },
-                        {
-                            value: 'PERA', label: 'Pera'
-                        }
-                    ]} placeholder='Şube seçiniz' {...formClassDetail.getInputProps('location')}/>
-                </div>
-            </div>
-            <div className='mt-12 flex flex-row w-full items-center justify-between'>
-                <div className='w-1/2'>
-                  <TextInput icon={<IconSearch size={16}/>} {...form.getInputProps('studentSearch')}/>
-                </div>
-                <ActionIcon onClick={()=>{
-                  formClassDetail.setFieldValue('modalClassDetail', false)
-                  form.setFieldValue('studentAddInClass', true)
-                }} variant='filled' color='cyan'>
-                  <IconPlus size={20} />
-                </ActionIcon>
-            </div>
-            <div className='mt-6'>
-              
-              {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              data ? (<StudentsInClassDetail form={form} userInfo={data.user}/>) : (<Loader />)}
-            </div>
+      <>
+      {isFetched ? (
+        <>
+        <div className='flex w-full justify-between items-end'>
+        <div className='md:w-1/3 w-1/2'>
+            <TextInput value={formClassDetail.values.nameClass} />
+        </div>
+        <div className='md:w-1/6 w-1/2'>
+            <Select zIndex={100} dropdownPosition='bottom' data={[
+                {
+                    value: 'ATAKUM', label: 'Atakum'
+                },
+                {
+                    value: 'PERA', label: 'Pera'
+                }
+            ]} placeholder='Şube seçiniz' {...formClassDetail.getInputProps('location')}/>
+        </div>
+    </div>
+    <div className='mt-12 flex flex-row w-full items-center justify-between'>
+        <div className='w-1/2'>
+          <TextInput icon={<IconSearch size={16}/>} {...form.getInputProps('studentSearch')}/>
+        </div>
+        <div className='flex flex-row gap-3 items-center'>
+          <ActionIcon onClick={()=>router.push(`/protected/admin/class/${className}`)}>
+            <IconAppWindow size={20} />
+          </ActionIcon>
+        <ActionIcon onClick={()=>{
+          formClassDetail.setFieldValue('modalClassDetail', false)
+          form.setFieldValue('studentAddInClass', true)
+        }} variant='filled' color='cyan'>
+          <IconPlus size={20} />
+        </ActionIcon>
+        </div>
+    </div>
+    <div className='mt-6'>
+      
+      {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data ? (<StudentsInClassDetail form={form} userInfo={data.user}/>) : (<Loader />)}
+    </div>
+    </>
+      ) : (
+        <Loader />
+      )}
+      </>
     </Modal>
     <StudentAddInClass className={formClassDetail.values.nameClass} form={form} formClassDetail={formClassDetail}/>
     </>

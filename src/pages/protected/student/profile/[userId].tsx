@@ -11,6 +11,10 @@ import { GenericStudentProfile } from '~/components/admin/students/profile/Gener
 import { Session } from 'next-auth'
 import { GetResult } from '@prisma/client/runtime'
 import { TransactionFor } from '@prisma/client'
+import { UseFormReturnType, useForm } from '@mantine/form'
+import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
+import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
+import { EgitimTab } from '~/components/studentsProfileGeneric/EgitimTab'
 
 export interface PageProps {
   currentSession: Session,
@@ -39,15 +43,52 @@ export interface PageProps {
 }
 }
 
+export type studentProfileAppShellProp = UseFormReturnType<{
+  buttonSelected: "odeme" | "profil" | "egitim";
+}, (values: {
+  buttonSelected: "odeme" | "profil" | "egitim";
+}) => {
+  buttonSelected: "odeme" | "profil" | "egitim";
+}>
+
 const Profile : NextPage<PageProps> = (props: PageProps) => {
   const {currentSession, userInfo} = props
   console.log(userInfo)
   console.log(currentSession)
+  const form = useForm<{
+    buttonSelected: "odeme" | "profil" | "egitim"
+  }>({
+    initialValues: {
+        buttonSelected: "profil"
+    }
+  })
+  const classPageForm = useForm({
+    initialValues: {
+      className: props.userInfo.classInfo || "",
+      isOpen: false
+    }
+  })
   return (
     <>
       {currentSession.user.role === "ADMIN" ? (
       <div className='relative flex flex-col w-screen h-screen'>
-        <GenericStudentProfile props={props}/>
+        <GenericStudentProfile form={form} >
+          <>
+            {form.values.buttonSelected === "profil" ? (
+          <div className='flex flex-col w-full h-full'>
+              <ProfileTab props={props}/>
+          </div>
+          ) : form.values.buttonSelected === "odeme" ? (
+            <div className='flex flex-col w-full h-full'>
+              <OdemeTab props={props}/>
+            </div>
+          ) : (
+            <div className='flex flex-col w-full h-full'>
+              <EgitimTab {...classPageForm} />
+            </div>
+          )}
+          </>
+        </GenericStudentProfile>
       </div>
       
       ) : (<div>Sa</div>)}
