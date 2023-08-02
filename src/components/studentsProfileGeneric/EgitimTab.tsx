@@ -6,13 +6,13 @@ import { classPageFormTypes } from '../TableClass'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
 import { EgitimGrid } from './EgitimGrid'
-import { dbLayoutType } from '~/utils/layoutParser'
+import { dbLayoutType, layoutItem } from '~/utils/layoutParser'
 import { IconDeviceMobile } from '@tabler/icons-react'
 import { IconDeviceIpadHorizontal } from '@tabler/icons-react'
 import { IconDeviceDesktop } from '@tabler/icons-react'
 import { useMediaQuery } from '@mantine/hooks'
 
-export type classProfilePageType = (dbLayoutType | undefined)[] | undefined
+export type classProfilePageType = layoutItem[] | undefined
 
 export const EgitimTab = (classPageForm : classPageFormTypes) => {
   const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
@@ -33,10 +33,26 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
       })
     }
   })
+  const {mutate: addCard, isLoading: loadingAddCard} = api.class.addCardClassProfilePage.useMutation({
+    onSuccess: ()=>{
+      context.class.invalidate()
+      context.user.invalidate()
+      notifications.show({
+        message: 'Başarılı bir şekilde sınıf sayfası oluşturdunuz',
+        color: 'green'
+      })
+    },
+    onError: (e)=>{
+      notifications.show({
+        message: e.message,
+        color: 'red'
+      })
+    }
+  })
   const [mediaQuery, setMediaQuery] = useState<768 | 1024 | 1184>(1184)
   return (
     <>
-        <Modal opened={classPageForm.values.isOpen!== undefined ? classPageForm.values.isOpen : false} onClose={()=>classPageForm.setFieldValue('isOpen', false)} size={mediaQuery}>
+        <Modal opened={classPageForm.values.isOpen!== undefined ? classPageForm.values.isOpen : false} onClose={()=>classPageForm.setFieldValue('isOpen', false)} fullScreen>
           <div className='flex flex-col w-full h-full'>
             {loadingClassProfilePage ? (
               <Loader />
@@ -56,11 +72,15 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
                   <IconDeviceDesktop size={30} />
                 </ActionIcon>
               </div>
-              <Button color='cyan' radius='lg'>+</Button>
+              <div className='flex flex-row items-center gap-4'>
+                <Button color='cyan' onClick={()=>addCard({
+                  className: classPageForm.values.className
+                })} radius='lg'>{loadingAddCard ? <Loader /> : "+"}</Button>
+                <Button color='grape' radius='md'>Kaydet</Button>
+              </div>
             </div>
-            <div className='flex flex-col w-full h-full mt-4'>
               <EgitimGrid classProfilePage={classProfilePage}/>
-            </div>
+            
                 </>
               ) : (
                 <Button onClick={()=>createClassProfilePage({

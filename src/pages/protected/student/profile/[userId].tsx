@@ -14,7 +14,8 @@ import { TransactionFor } from '@prisma/client'
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
-import { EgitimTab } from '~/components/studentsProfileGeneric/EgitimTab'
+import { EgitimGrid } from '~/components/studentsProfileGeneric/EgitimGrid'
+import { Loader } from '@mantine/core'
 
 export interface PageProps {
   currentSession: Session,
@@ -68,6 +69,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
       isOpen: false
     }
   })
+  const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
   return (
     <>
       {currentSession.user.role === "ADMIN" ? (
@@ -83,9 +85,15 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
               <OdemeTab props={props}/>
             </div>
           ) : (
-            <div className='flex flex-col w-full h-full'>
-              <EgitimTab {...classPageForm} />
+            loadingClassProfilePage ? (
+              <div className='flex flex-col w-full h-full justify-center items-center'>
+                <Loader />
+              </div>
+            ) : (
+              <div className='flex flex-col w-full h-full'>
+                <EgitimGrid classProfilePage={classProfilePage} />
             </div>
+            )
           )}
           </>
         </GenericStudentProfile>

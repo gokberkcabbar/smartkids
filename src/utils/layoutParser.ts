@@ -12,22 +12,22 @@ export interface layoutItem {
 
 export type dbLayoutType = {
     layouts: {
-        lg?: layoutItem[],
-        md?: layoutItem[],
-        sm?: layoutItem[]
+        lg: layoutItem[],
+        md: layoutItem[],
+        sm: layoutItem[],
     }
 }
 
-export const layoutParser: ({dbLayout, userRole}: {dbLayout : dbLayoutType, userRole: "ADMIN" | "STUDENT"})=>(dbLayoutType) = ({dbLayout, userRole}: {dbLayout : dbLayoutType, userRole: "ADMIN" | "STUDENT"}) => {
+export const layoutParser: ({dbLayout, userRole}: {dbLayout : layoutItem, userRole: "ADMIN" | "STUDENT"})=>(layoutItem) = ({dbLayout, userRole}: {dbLayout : layoutItem, userRole: "ADMIN" | "STUDENT"}) => {
     if(userRole === "ADMIN"){
-        const updatedLayout = {...dbLayout}
-        updatedLayout.layouts.lg?.forEach((val)=>val.static = false)
-        updatedLayout.layouts.md?.forEach((val)=>val.static = false)
-        updatedLayout.layouts.sm?.forEach((val)=>val.static = false)
+        let updatedLayout = {...dbLayout}
+        updatedLayout = {...updatedLayout, static: false}
         return updatedLayout
     }
     else{
-        return dbLayout
+        let updatedLayout = {...dbLayout}
+        updatedLayout = {...updatedLayout, static: true}
+        return updatedLayout
     }
 
 

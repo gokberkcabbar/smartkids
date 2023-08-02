@@ -13,7 +13,7 @@ import {
 import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
 import { Location } from "@prisma/client";
-import { dbLayoutType, layoutParser } from "~/utils/layoutParser";
+import { dbLayoutType, layoutItem, layoutParser } from "~/utils/layoutParser";
 export const classRouter = createTRPCRouter({
     // POST - Yeni Sınıf oluştur
     addClass: adminProcedure.input(z.object({
@@ -153,13 +153,13 @@ export const classRouter = createTRPCRouter({
         if(elements && elements.ClassPage){
             const parsedLayouts = elements.ClassPage.elements.filter((val)=>val !== undefined).map((val)=>{
                 if(val.layout){
-                    const parsedLayout = layoutParser({dbLayout: JSON.parse(val.layout as string) as unknown as dbLayoutType, userRole: ctx.session.user.role})
+                    const parsedLayout = layoutParser({dbLayout: JSON.parse(val.layout as string) as unknown as layoutItem, userRole: ctx.session.user.role})
                     return parsedLayout
                 }
                 else{
                     return null
                 }
-            }).filter((parsedLayout)=> parsedLayout !== null) as dbLayoutType[]
+            }).filter((parsedLayout)=> parsedLayout !== null) as layoutItem[]
             return parsedLayouts
         }
         else{
@@ -173,7 +173,7 @@ export const classRouter = createTRPCRouter({
     createClassProfilePage: adminProcedure.input(z.object({
         className: z.string()
     })).mutation(async ({input})=>{
-        const initialLayout = {"layouts":{"lg":[{"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false},{"w":4,"h":5,"x":4,"y":0,"i":"2","minW":1,"minH":1,"static":false},{"w":4,"h":5,"x":4,"y":0,"i":"3","minW":1,"minH":1,"static":false}]}}
+        const initialLayout = {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}
         const className = await prisma.class.findUnique({
             where: {
                 name: input.className
@@ -203,5 +203,49 @@ export const classRouter = createTRPCRouter({
                 }
             }
         })
+    }),
+
+    // UPDATE - Sınıf sayfasına yeni bir card ekle
+    addCardClassProfilePage: adminProcedure.input(z.object({
+        className: z.string()
+    })).mutation(async ({input})=>{
+        const classInfo = await prisma.class.findUnique({
+            where: {
+                name: input.className
+            },
+            include: {
+                ClassPage: {
+                    include: {
+                        elements: true
+                    }
+                }
+            }
+        })
+        if(classInfo){
+            const currentLayout = classInfo.ClassPage!.elements
+            const currentLayoutLength = currentLayout.length
+            const newLayout = {"w":4,"h":5,"x":currentLayoutLength*4,"y":0,"i":(currentLayoutLength + 1).toString(),"minW":1,"minH":1,"static":false}
+            return await prisma.classPage.update({
+                where: {
+                    classId: classInfo.id
+                },
+                include: {
+                    elements: true
+                },
+                data: {
+                    elements: {
+                        create: {
+                            layout: JSON.stringify(newLayout)
+                        }
+                    }
+                }
+            })
+        }
+        else {
+            throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Sınıf bulunamadı"
+            })
+        }
     })
 })
