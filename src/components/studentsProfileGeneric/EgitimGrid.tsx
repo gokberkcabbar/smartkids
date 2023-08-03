@@ -12,13 +12,15 @@ import { ActionIcon, Button, Card, Text } from '@mantine/core'
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { IconPencil, IconTrash } from '@tabler/icons-react'
+import { RichTextEditorCard } from './RichTextEditorCard'
+import { JSONContent } from '@tiptap/react'
 const ResponsiveGridLayout = WidthProvider(Responsive)
 export const EgitimGrid = ({classProfilePage}: {classProfilePage: classProfilePageType}) => {
-  const [elementLayouts, setElementLayouts] = useState<dbLayoutType[] | undefined[]>([])
+  const [textEditorState, setTextEditorState] = useState<JSONContent>({})
   const [layoutChange, setLayoutChange] = useState<ReactGridLayout.Layout[]>([])
   const [layout, setLayout] = useState<dbLayoutType>()
   const [fetched, setFetched] = useState(false)
-
+    const [editMode, setEditMode] = useState(false)
   useEffect(() => {
     if(classProfilePage){
             const layoutObject: dbLayoutType = {
@@ -40,11 +42,14 @@ export const EgitimGrid = ({classProfilePage}: {classProfilePage: classProfilePa
         {fetched && layout && layout.layouts.lg.length > 0 ? (
                 <ResponsiveGridLayout onLayoutChange={(e)=>setLayoutChange(e)} layouts={layout.layouts} rowHeight={30} cols={{lg: 12, md: 8, sm: 4}} breakpoints={{lg: 1200, md: 800,sm: 200}}>
             {layout.layouts.lg.map((val)=>{
+                
                 return (
                  <div key={val.i} className='flex flex-col w-full h-full'>
                  <Card className='relative flex flex-col w-full h-full'>
                      <div className='bg-slate-200/10 z-30 px-8 absolute top-0 left-0 right-0 h-[30px] flex flex-row justify-between items-center'>
-                         <ActionIcon>
+                         <ActionIcon hidden={editMode} onClick={()=>{
+                            setEditMode(true)
+                         }}>
                              <IconPencil size={20} />
                          </ActionIcon>
                          <div className='flex flex-row gap-3 items-center'>
@@ -55,6 +60,9 @@ export const EgitimGrid = ({classProfilePage}: {classProfilePage: classProfilePa
                              <IconTrash size={20} />
                          </ActionIcon>
                      </div>
+                     {editMode ? (<RichTextEditorCard setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.i}/>) : (
+                        null
+                     )}
                  </Card>
              </div>
             )})}
