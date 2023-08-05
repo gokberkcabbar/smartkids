@@ -15,6 +15,7 @@ import { notifications } from '@mantine/notifications';
 import { IconAppWindow } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { EgitimTab } from './studentsProfileGeneric/EgitimTab';
+import { useMediaQuery } from '@mantine/hooks';
 
 
 export type classPageFormTypes = UseFormReturnType<{
@@ -121,11 +122,11 @@ export const TableClass = ({form}:{form:UseFormReturnType<{
   
   }, [elements, form.values.locationFilter, form.values.searchFilter])
   
-
+  const smBreakpoint = useMediaQuery('(max-width: 48em)')
   return (
     <>
         {isFetched ? (
-            <Table striped horizontalSpacing={60} highlightOnHover withBorder>
+            <Table striped horizontalSpacing={smBreakpoint ? 0 : 60} highlightOnHover withBorder>
             <thead>
               <tr>
                 <th>Sınıf Adı</th>
