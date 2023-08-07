@@ -124,21 +124,13 @@ model ClassPage {
 }
 
 model Element {
-    id          String      @id @default(cuid())
-    elementType elementType @default(TEXT)
-    layout      Json
-    videoLink   String?
-    imageLink   String?
-    ClassPage   ClassPage   @relation(fields: [classPageId], references: [id], onDelete: Cascade)
+    id          String    @id @default(cuid())
+    layout      String
+    content     String    @db.Text
+    ClassPage   ClassPage @relation(fields: [classPageId], references: [id], onDelete: Cascade)
     classPageId String
 
     @@index([classPageId])
-}
-
-enum elementType {
-    TEXT
-    VIDEO
-    MIXED
 }
 
 enum TransactionFor {

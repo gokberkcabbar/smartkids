@@ -1,4 +1,8 @@
+import { JSONContent } from "@tiptap/react";
+
 export interface layoutItem {
+    isDraggable: boolean;
+    editMode: boolean;
     w: number;
     h: number;
     x: number;
@@ -17,6 +21,15 @@ export type dbLayoutType = {
         sm: layoutItem[],
     }
 }
+
+export type classProfilePageTypes = {
+    classPageId: string,
+    content: string,
+    layout: string,
+    id: string
+}
+
+
 
 export const layoutParser: ({dbLayout, userRole}: {dbLayout : layoutItem, userRole: "ADMIN" | "STUDENT"})=>(layoutItem) = ({dbLayout, userRole}: {dbLayout : layoutItem, userRole: "ADMIN" | "STUDENT"}) => {
     if(userRole === "ADMIN"){

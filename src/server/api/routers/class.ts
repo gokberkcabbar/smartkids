@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { JSONContent } from "@tiptap/react";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -135,45 +136,60 @@ export const classRouter = createTRPCRouter({
     // GET - Sınıf profil sayfası
     getClasssProfilePage: protectedProcedure.input(z.object({
         className: z.string()
-    })).query(async({ctx, input})=>{
+    })).query(async({input})=>{
         
         const elements = await prisma.class.findUnique({
             where: {
                 name: input.className
             },
-            include: {
+            select: {
                 ClassPage: {
-                    include: {
+                    select: {
                         elements: true
                     }
                 }
             }
         })
-        
-        if(elements && elements.ClassPage){
-            const parsedLayouts = elements.ClassPage.elements.filter((val)=>val !== undefined).map((val)=>{
-                if(val.layout){
-                    const parsedLayout = layoutParser({dbLayout: JSON.parse(val.layout as string) as unknown as layoutItem, userRole: ctx.session.user.role})
-                    return parsedLayout
-                }
-                else{
-                    return null
-                }
-            }).filter((parsedLayout)=> parsedLayout !== null) as layoutItem[]
-            return parsedLayouts
-        }
-        else{
+
+        if(!elements!.ClassPage){
             throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Herhangi bir element bulunamadı'
+                code: "NOT_FOUND",
+                message: "Sınıf profil sayfası bulunamadı"
             })
         }
+
+        return elements!.ClassPage.elements
+
+        // if(elements){
+        //     elements.ClassPage?.elements.
+        // }
+
+        
+        // if(elements && elements.ClassPage){
+        //     const parsedLayouts = elements.ClassPage.elements.filter((val)=>val !== undefined).map((val)=>{
+        //         if(val.layout){
+        //             const parsedLayout = layoutParser({dbLayout: JSON.parse(val.layout as string) as unknown as layoutItem, userRole: ctx.session.user.role})
+        //             return parsedLayout
+        //         }
+        //         else{
+        //             return null
+        //         }
+        //     }).filter((parsedLayout)=> parsedLayout !== null) as layoutItem[]
+        //     return parsedLayouts
+        // }
+        // else{
+        //     throw new TRPCError({
+        //         code: 'NOT_FOUND',
+        //         message: 'Herhangi bir element bulunamadı'
+        //     })
+        // }
     }),
     // UPDATE - Sınıf profil sayfası oluştur
     createClassProfilePage: adminProcedure.input(z.object({
         className: z.string()
     })).mutation(async ({input})=>{
         const initialLayout = {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}
+        const initialContent = `<p>Deneme</p>`
         const className = await prisma.class.findUnique({
             where: {
                 name: input.className
@@ -198,7 +214,9 @@ export const classRouter = createTRPCRouter({
                 },
                 elements: {
                     create: {
-                        layout: JSON.stringify(initialLayout)
+                        layout: JSON.stringify(initialLayout),
+                        content: initialContent,
+                        id: "1"
                     }
                 }
             }
@@ -224,7 +242,8 @@ export const classRouter = createTRPCRouter({
         if(classInfo){
             const currentLayout = classInfo.ClassPage!.elements
             const currentLayoutLength = currentLayout.length
-            const newLayout = {"w":4,"h":5,"x":currentLayoutLength*4,"y":0,"i":(currentLayoutLength + 1).toString(),"minW":1,"minH":1,"static":false}
+            const newLayout = {"w":4,"h":5,"x":(currentLayoutLength + 1) * 4,"y":0,"i":(currentLayoutLength + 1).toString(),"minW":1,"minH":1,"static":false}
+            const newContent = `<p>Deneme</p>`
             return await prisma.classPage.update({
                 where: {
                     classId: classInfo.id
@@ -235,7 +254,9 @@ export const classRouter = createTRPCRouter({
                 data: {
                     elements: {
                         create: {
-                            layout: JSON.stringify(newLayout)
+                            layout: JSON.stringify(newLayout),
+                            content: newContent,
+                            id: (currentLayoutLength +1).toString()
                         }
                     }
                 }
@@ -247,5 +268,49 @@ export const classRouter = createTRPCRouter({
                 message: "Sınıf bulunamadı"
             })
         }
+    }),
+    // UPDATE - Sayfayı update et
+    updateCardClassRichText: adminProcedure.input(z.object({
+        className: z.string(),
+        updateContent: z.string(),
+        cardId: z.string(),
+        layout: z.string()
+    })).mutation(async ({input})=>{
+        const classInfo = await prisma.class.findUnique({
+            where: {
+                name: input.className
+            },
+            include: {
+                ClassPage: {
+                    include: {
+                        elements: true
+                    }
+                }
+            }
+        })
+        if(classInfo){
+            return await prisma.classPage.update({
+                where: {
+                    classId: classInfo.id
+                },
+                include: {
+                    elements: true
+                },
+                data: {
+                    elements: {
+                        update: {
+                            where: {
+                                id: input.cardId
+                            },
+                            data: {
+                                content: input.updateContent,
+                                layout: input.layout
+                            }
+                        }
+                    }
+                }
+            })
+        }
     })
+
 })

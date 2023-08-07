@@ -6,17 +6,19 @@ import { classPageFormTypes } from '../TableClass'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
 import { EgitimGrid } from './EgitimGrid'
-import { dbLayoutType, layoutItem } from '~/utils/layoutParser'
+import { classProfilePageTypes, dbLayoutType, layoutItem } from '~/utils/layoutParser'
 import { IconDeviceMobile } from '@tabler/icons-react'
 import { IconDeviceIpadHorizontal } from '@tabler/icons-react'
 import { IconDeviceDesktop } from '@tabler/icons-react'
 import { useMediaQuery } from '@mantine/hooks'
 
-export type classProfilePageType = layoutItem[] | undefined
+export type classProfilePageType = classProfilePageTypes[]
 
 export const EgitimTab = (classPageForm : classPageFormTypes) => {
   const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
   const context = api.useContext()
+  const [classPage, setClassPage] = useState()
+  const [fetched, setFetched] = useState<boolean>(false)
   const {mutate: createClassProfilePage, isLoading: createClassProfilePageLoading} = api.class.createClassProfilePage.useMutation({
     onSuccess: ()=>{
       context.class.invalidate()
@@ -40,7 +42,8 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
       notifications.show({
         message: 'Başarılı bir şekilde sınıf sayfası oluşturdunuz',
         color: 'green'
-      })
+      }),
+      setFetched(false)
     },
     onError: (e)=>{
       notifications.show({
@@ -49,6 +52,7 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
       })
     }
   })
+  
   const [mediaQuery, setMediaQuery] = useState<768 | 1024 | 1184>(1184)
   return (
     <>
@@ -79,8 +83,7 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
                 <Button color='grape' radius='md'>Kaydet</Button>
               </div>
             </div>
-              <EgitimGrid classProfilePage={classProfilePage}/>
-            
+              <EgitimGrid fetched={fetched} setFetched={setFetched} className={classPageForm.values.className} classProfilePage={classProfilePage as classProfilePageType}/>
                 </>
               ) : (
                 <Button onClick={()=>createClassProfilePage({

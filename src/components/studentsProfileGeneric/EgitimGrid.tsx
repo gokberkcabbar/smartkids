@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import React from 'react'
+import React, { SetStateAction, useMemo, useRef } from 'react'
 import {Layouts, Responsive, WidthProvider} from 'react-grid-layout'
 import { classProfilePageType } from './EgitimTab'
 import {useMediaQuery} from '@mantine/hooks'
@@ -13,55 +13,157 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { IconPencil, IconTrash } from '@tabler/icons-react'
 import { RichTextEditorCard } from './RichTextEditorCard'
-import { JSONContent } from '@tiptap/react'
+import { JSONContent, generateHTML, generateJSON } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Youtube from '@tiptap/extension-youtube'
+import Highlight from '@tiptap/extension-highlight'
+import TextAlign from '@tiptap/extension-text-align'
 const ResponsiveGridLayout = WidthProvider(Responsive)
-export const EgitimGrid = ({classProfilePage}: {classProfilePage: classProfilePageType}) => {
-  const [textEditorState, setTextEditorState] = useState<JSONContent>({})
+
+
+
+
+export interface layoutType {
+    layouts: {
+        lg: layoutItem[];
+        md: layoutItem[];
+        sm: layoutItem[];
+    };
+}
+
+
+
+export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {fetched: boolean, setFetched: React.Dispatch<SetStateAction<boolean>>, classProfilePage: classProfilePageType, className: string}) => {
+  const [textEditorState, setTextEditorState] = useState<string>("")
   const [layoutChange, setLayoutChange] = useState<ReactGridLayout.Layout[]>([])
-  const [layout, setLayout] = useState<dbLayoutType>()
-  const [fetched, setFetched] = useState(false)
-    const [editMode, setEditMode] = useState(false)
+  const [layout, setLayout] = useState<layoutType>()
+  const [editActivate, setEditActivate] = useState("")
+  const [content, setContent] = useState<{content: string, id: string}[]>([])
+  const [profilePage, setProfilePage] = useState<{
+    classPageId: string;
+    content: string;
+    layout: {
+        editMode: boolean;
+        isDraggable: boolean;
+        w: number;
+        h: number;
+        x: number;
+        y: number;
+        i: string;
+        minW: number;
+        minH: number;
+        moved: boolean;
+        static: boolean;
+    };
+    id: string;
+}[]>([])
+  const [refArray, setRefArray] = useState<React.RefObject<HTMLDivElement>[]>([])
+  const smBreakpoint = useMediaQuery('(min-width: 200px)')
+  const lgBreakpoint = useMediaQuery('(min-width: 1200px)')
   useEffect(() => {
     if(classProfilePage){
-            const layoutObject: dbLayoutType = {
-                layouts: {
-                    lg: classProfilePage.map((val)=>val),
-                    md: classProfilePage.map((val)=>val),
-                    sm: classProfilePage.map((val)=>val),
-                }
-            }
-            setLayout(
-                layoutObject
-            )
+            setProfilePage(classProfilePage.map((val)=>{
+                const parsedLayout: layoutItem = JSON.parse(val.layout)
+                return ({
+                    classPageId: val.classPageId,
+                    content: val.content,
+                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: parsedLayout.i !== editActivate ? true : false},
+                    id: val.id
+                })
+            }))
             setFetched(true)
+            if(content.length === 0){
+                const parsedContentArray = classProfilePage.map((val)=>{
+                    const HTMLContent = {
+                        content: val.content,
+                        id: val.id
+                    }
+                    return HTMLContent
+                })
+                setContent(parsedContentArray)
+            }
         }
-  }, [classProfilePage])
-  console.log(layout)
+        return () => {
+            setFetched(false)
+        }
+  }, [classProfilePage, editActivate])
+
+
+  useEffect(() => {
+    if(fetched){
+        const layoutObject: layoutType = {
+            layouts: {
+                lg: profilePage.map((val)=>val.layout),
+                md: profilePage.map((val)=>val.layout),
+                sm: profilePage.map((val)=>val.layout),
+            }
+        }
+    
+        setLayout(
+            layoutObject
+        )
+
+        if(!lgBreakpoint){
+            setRefArray(Array.from({length: profilePage.length}, ()=>React.createRef()))
+        }
+        
+    }
+  
+  }, [fetched, editActivate, lgBreakpoint])
+
+  useEffect(() => {
+    if(!lgBreakpoint){
+        setLayout({
+            layouts: {
+                lg: profilePage.map((val, index)=>({
+                    ...val.layout,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                })),
+                md: profilePage.map((val, index)=>({
+                    ...val.layout,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                })),
+                sm: profilePage.map((val, index)=>({
+                    ...val.layout,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                }))
+            }
+        })
+    }
+  
+  }, [refArray])
+  
+  console.log(refArray)
+
   return (
     <>
         {fetched && layout && layout.layouts.lg.length > 0 ? (
                 <ResponsiveGridLayout onLayoutChange={(e)=>setLayoutChange(e)} layouts={layout.layouts} rowHeight={30} cols={{lg: 12, md: 8, sm: 4}} breakpoints={{lg: 1200, md: 800,sm: 200}}>
-            {layout.layouts.lg.map((val)=>{
-                
+            {profilePage.map((val, index)=>{
+                const parsedContent = val.content
+                console.log(val.layout.editMode)
                 return (
-                 <div key={val.i} className='flex flex-col w-full h-full'>
+                 <div key={val.layout.i} className='flex flex-col w-full h-full'>
                  <Card className='relative flex flex-col w-full h-full'>
                      <div className='bg-slate-200/10 z-30 px-8 absolute top-0 left-0 right-0 h-[30px] flex flex-row justify-between items-center'>
-                         <ActionIcon hidden={editMode} onClick={()=>{
-                            setEditMode(true)
+                         <ActionIcon hidden={val.layout.editMode} onClick={()=>{
+                            setEditActivate(val.layout.i)
                          }}>
                              <IconPencil size={20} />
                          </ActionIcon>
                          <div className='flex flex-row gap-3 items-center'>
                              <Text size={15}>ID: </Text>
-                             <Text size={15}>{val.i}</Text>
+                             <Text size={15}>{val.layout.i}</Text>
                          </div>
                          <ActionIcon>
                              <IconTrash size={20} />
                          </ActionIcon>
                      </div>
-                     {editMode ? (<RichTextEditorCard setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.i}/>) : (
-                        null
+                     {val.layout.editMode ? (<RichTextEditorCard setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>) : (
+                        <div ref={refArray[index]} dangerouslySetInnerHTML={{__html: parsedContent}}></div>
                      )}
                  </Card>
              </div>

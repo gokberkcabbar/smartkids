@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
@@ -16,6 +16,7 @@ import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
 import { EgitimGrid } from '~/components/studentsProfileGeneric/EgitimGrid'
 import { Loader } from '@mantine/core'
+import { classProfilePageType } from '~/components/studentsProfileGeneric/EgitimTab'
 
 export interface PageProps {
   currentSession: Session,
@@ -70,6 +71,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
     }
   })
   const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
+  const [fetched, setFetched] = useState<boolean>(false)
   return (
     <>
       {currentSession.user.role === "ADMIN" ? (
@@ -91,7 +93,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
               </div>
             ) : (
               <div className='flex flex-col w-full h-full'>
-                <EgitimGrid classProfilePage={classProfilePage} />
+                <EgitimGrid fetched={fetched} setFetched={setFetched} className={classPageForm.values.className} classProfilePage={classProfilePage as classProfilePageType} />
             </div>
             )
           )}
