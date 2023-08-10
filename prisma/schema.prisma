@@ -133,6 +133,25 @@ model Element {
     @@index([classPageId])
 }
 
+model NotificationSetting {
+    id                 String                   @id @default(cuid())
+    isEnabled          Boolean                  @default(false)
+    reportingEmail     String?
+    notifiedParentDate String?
+    notificationFor    NotificationForSetting[]
+}
+
+model NotificationForSetting {
+    id                    String              @id @default(cuid())
+    notificateFor         NotificationFor
+    NotificationSetting   NotificationSetting @relation(fields: [notificationSettingId], references: [id], onDelete: Cascade)
+    notificationSettingId String
+    enabled               Boolean             @default(false)
+
+    @@unique([notificateFor, notificationSettingId])
+    @@index([notificationSettingId])
+}
+
 enum TransactionFor {
     MATERYAL1
     MATERYAL2
@@ -148,4 +167,10 @@ enum TransactionFor {
     EKIM
     KASIM
     ARALIK
+}
+
+enum NotificationFor {
+    MATERYAL1
+    MATERYAL2
+    AYLAR
 }

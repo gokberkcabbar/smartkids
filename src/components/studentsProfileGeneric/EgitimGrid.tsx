@@ -118,17 +118,20 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                 lg: profilePage.map((val, index)=>({
                     ...val.layout,
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
+                    w: 4
                 })),
                 md: profilePage.map((val, index)=>({
                     ...val.layout,
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
+                    w: 4
                 })),
                 sm: profilePage.map((val, index)=>({
                     ...val.layout,
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30)
+                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
+                    w: 4
                 }))
             }
         })
