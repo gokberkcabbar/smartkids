@@ -12,59 +12,80 @@ import { NotificationFor } from "@prisma/client";
 
 export const notificationRouter = createTRPCRouter({
     //GET - Notification Ayarları
-    getNotificationSettings: adminProcedure.input(z.object({
-        id: z.string()
-    })).query(async({input})=>{
-        const notification = await prisma.notificationSetting.findUnique({
+    getNotificationSettings: adminProcedure.query(async()=>{
+        return await prisma.notificationSetting.findMany({
+            include: {
+                notificationFor: true
+            }
+        })
+    }),
+    //POST - Notification Profili oluştur
+    createNotificationSettings: adminProcedure.input(z.object({
+        id: z.string(),
+        email: z.string(),
+        notificatingFor: z.array(
+            z.union([
+                z.literal("MATERYAL1"),
+                z.literal("MATERYAL2"),
+                z.literal("AYLAR")
+            ])
+        )
+    })).mutation(async({input})=>{
+        await prisma.notificationSetting.create({
+            data: {
+                id: input.id,
+                reportingEmail: input.email,
+            }
+        })
+
+        const elements = await prisma.notificationSetting.findUnique({
             where: {
                 id: input.id
             }
         })
 
-        if(!notification){
-            throw new TRPCError({
-                code: "NOT_FOUND",
-                message: "Bildirim ayarı bulunamadı"
-            })
+        if(elements){
+            for(const val of input.notificatingFor){
+                await prisma.notificationForSetting.create({
+                    data: {
+                        NotificationSetting: {
+                            connect: {
+                                id: elements.id
+                            }
+                        },
+                        notificateFor: val,
+                        enabled: true,
+                    }
+                })
+            }
         }
 
-        return notification
-    }),
-    //POST - Notification Profili oluştur
-    createNotificationSettings: adminProcedure.input(z.object({
-        id: z.string(),
-    })).mutation(async({input})=>{
-        return prisma.notificationSetting.create({
-            data: {
-                id: input.id,
-            }
-        })
+        
     }),
 
     //UPDATE - Notification Profili update et
-
     updateNotificationSettings: adminProcedure.input(z.object({
         id: z.string(),
-        notificationFor: z.nativeEnum(NotificationFor),
-        notifiedParentDate: z.string(),
-        reportingEmail: z.string(),
-        isEnabled: z.boolean(),
-        isNotificationForEnabled: z.object({
-            MATERYAL1: z.boolean(),
-            MATERYAL2: z.boolean(),
-            AYLAR: z.boolean()
-        })
+        email: z.string().optional(),
+        notificatingFor: z.array(
+            z.union([
+                z.literal("MATERYAL1"),
+                z.literal("MATERYAL2"),
+                z.literal("AYLAR")
+            ])
+        ).optional()
     })).mutation(async({input})=>{
-        const isNotificationForExist = await prisma.notificationForSetting.findUnique({
+        const element = await prisma.notificationSetting.findUnique({
             where: {
-                notificateFor_notificationSettingId: {
-                    notificateFor: input.notificationFor,
-                    notificationSettingId: input.id
-                }
+                id: input.id
+            },
+            include: {
+                notificationFor: true
             }
         })
-        if(isNotificationForExist){
-            return await prisma.notificationSetting.update({
+        if(element && input.notificatingFor){
+            await prisma.notificationForSetting.deleteMany()
+            await prisma.notificationSetting.update({
                 where: {
                     id: input.id
                 },
@@ -72,44 +93,30 @@ export const notificationRouter = createTRPCRouter({
                     notificationFor: true
                 },
                 data: {
-                    isEnabled: input.isEnabled,
-                    reportingEmail: input.reportingEmail,
-                    notifiedParentDate: input.notifiedParentDate,
-                    notificationFor: {
-                        update: {
-                            where: {
-                                notificateFor_notificationSettingId: {
-                                    notificateFor: input.notificationFor,
-                                    notificationSettingId: input.id
-                                }
-                            },
-                            data: {
-                                enabled: input.isNotificationForEnabled[`${input.notificationFor}`]
-                            }
-                        }   
-                    }
+                    reportingEmail: input.email || element.reportingEmail,
                 }
             })
-        }
-        
-        return await prisma.notificationSetting.update({
-            where: {
-                id: input.id
-            },
-            include: {
-                notificationFor: true
-            },
-            data: {
-                isEnabled: input.isEnabled,
-                reportingEmail: input.reportingEmail,
-                notifiedParentDate: input.notifiedParentDate,
-                notificationFor: {
-                    create: {
-                        enabled: input.isNotificationForEnabled[`${input.notificationFor}`],
-                        notificateFor: input.notificationFor
+
+            for(const elements of input.notificatingFor){
+                await prisma.notificationForSetting.create({
+                    data: {
+                        NotificationSetting: {
+                            connect: {
+                                id: input.id
+                            }
+                        },
+                        enabled: true,
+                        notificateFor: elements
                     }
-                }
+                })
             }
-        })
+        }
+        else{
+            throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "Bildirim bulunamadı"
+            })
+        }
     })
+    
 })

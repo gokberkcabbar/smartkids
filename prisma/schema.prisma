@@ -134,11 +134,9 @@ model Element {
 }
 
 model NotificationSetting {
-    id                 String                   @id @default(cuid())
-    isEnabled          Boolean                  @default(false)
-    reportingEmail     String?
-    notifiedParentDate String?
-    notificationFor    NotificationForSetting[]
+    id              String                   @id @default(cuid())
+    reportingEmail  String
+    notificationFor NotificationForSetting[]
 }
 
 model NotificationForSetting {
