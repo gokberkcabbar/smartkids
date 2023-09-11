@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -18,6 +19,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Youtube from '@tiptap/extension-youtube'
 import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
+import { api } from '~/utils/api'
+import { notifications } from '@mantine/notifications'
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
 
@@ -60,6 +63,25 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
   const [refArray, setRefArray] = useState<React.RefObject<HTMLDivElement>[]>([])
   const smBreakpoint = useMediaQuery('(min-width: 200px)')
   const lgBreakpoint = useMediaQuery('(min-width: 1200px)')
+  const context = api.useContext()
+  const {mutate: deleteCard} = api.class.deleteCardClassProfilePage.useMutation({
+    onSuccess: ()=>{
+        context.class.invalidate()
+        context.user.invalidate()
+        notifications.show({
+            message: "Kart başarıyla silindi",
+            color: 'green',
+            autoClose: 2000,
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
+    }
+  })
   useEffect(() => {
     if(classProfilePage){
             setProfilePage(classProfilePage.map((val)=>{
@@ -162,7 +184,10 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                              <Text size={15}>{val.layout.i}</Text>
                          </div>
                          <ActionIcon>
-                             <IconTrash size={20} />
+                             <IconTrash onClick={()=>deleteCard({
+                                className: className,
+                                layoutId: parseInt(val.layout.i, 10)
+                             })} size={20} />
                          </ActionIcon>
                      </div>
                      {val.layout.editMode ? (<RichTextEditorCard setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>) : (

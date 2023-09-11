@@ -125,11 +125,14 @@ model ClassPage {
 
 model Element {
     id          String    @id @default(cuid())
+    layoutId    Int       @default(1)
+    className   String
     layout      String
     content     String    @db.Text
     ClassPage   ClassPage @relation(fields: [classPageId], references: [id], onDelete: Cascade)
     classPageId String
 
+    @@unique([layoutId, className])
     @@index([classPageId])
 }
 

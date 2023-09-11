@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -15,6 +16,7 @@ import { prisma } from "~/server/db";
 import bcrpyt from 'bcrypt'
 import { Location } from "@prisma/client";
 import { dbLayoutType, layoutItem, layoutParser } from "~/utils/layoutParser";
+import { consecutiveCheck } from "~/utils/consecutiveCheck";
 export const classRouter = createTRPCRouter({
     // POST - Yeni Sınıf oluştur
     addClass: adminProcedure.input(z.object({
@@ -205,18 +207,19 @@ export const classRouter = createTRPCRouter({
                 message: "Sınıf bulunamadı"
             })
         }
-        return await prisma.classPage.create({
+
+        await prisma.classPage.create({
             data: {
                 class: {
                     connect: {
-                        name: className.name
+                        name: input.className
                     }
                 },
                 elements: {
                     create: {
                         layout: JSON.stringify(initialLayout),
                         content: initialContent,
-                        id: "1"
+                        className: input.className,
                     }
                 }
             }
@@ -240,9 +243,9 @@ export const classRouter = createTRPCRouter({
             }
         })
         if(classInfo){
-            const currentLayout = classInfo.ClassPage!.elements
-            const currentLayoutLength = currentLayout.length
-            const newLayout = {"w":4,"h":5,"x":(currentLayoutLength + 1) * 4,"y":0,"i":(currentLayoutLength + 1).toString(),"minW":1,"minH":1,"static":false}
+            const currentLayoutIdList = classInfo.ClassPage!.elements.map((val)=>val.layoutId)
+            const layoutId = consecutiveCheck(currentLayoutIdList)
+            const newLayout = {"w":4,"h":5,"x":(layoutId - 1) * 4,"y":0,"i":layoutId.toString(),"minW":1,"minH":1,"static":false}
             const newContent = `<p>Deneme</p>`
             return await prisma.classPage.update({
                 where: {
@@ -256,7 +259,8 @@ export const classRouter = createTRPCRouter({
                         create: {
                             layout: JSON.stringify(newLayout),
                             content: newContent,
-                            id: (currentLayoutLength +1).toString()
+                            className: input.className,
+                            layoutId: layoutId
                         }
                     }
                 }
@@ -268,6 +272,21 @@ export const classRouter = createTRPCRouter({
                 message: "Sınıf bulunamadı"
             })
         }
+    }),
+
+    // DELETE - Card elementini sil
+    deleteCardClassProfilePage: adminProcedure.input(z.object({
+        layoutId: z.number(),
+        className: z.string()
+    })).mutation(async ({input})=>{
+        return await prisma.element.delete({
+            where: {
+                layoutId_className: {
+                    layoutId: input.layoutId,
+                    className: input.className
+                }
+            }
+        })
     }),
     // UPDATE - Sayfayı update et
     updateCardClassRichText: adminProcedure.input(z.object({
@@ -300,11 +319,15 @@ export const classRouter = createTRPCRouter({
                     elements: {
                         update: {
                             where: {
-                                id: input.cardId
+                                layoutId_className: {
+                                    className: input.className,
+                                    layoutId: parseInt(input.cardId, 10)
+                                },
                             },
                             data: {
                                 content: input.updateContent,
-                                layout: input.layout
+                                layout: input.layout,
+
                             }
                         }
                     }
