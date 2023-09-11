@@ -11,6 +11,7 @@ import { useMediaQuery } from '@mantine/hooks'
 import { NotificationAvailable } from '~/components/notifications/NotificationAvailable'
 import { NotificationFor } from '@prisma/client'
 import { GetResult } from '@prisma/client/runtime'
+import { NotificationNotAvailable } from '~/components/notifications/NotificationNotAvailable'
 
 interface PageProps {
     currentSession: Session
@@ -69,7 +70,7 @@ const Notifications: NextPage<PageProps> = (props: PageProps) => {
                     </Card>
                 </div>
             ) : (
-                null
+                <NotificationNotAvailable notificationForm={notificationForm} />
             )
        ) : (
             <div className='flex w-full h-full justify-center items-center'>

@@ -117,6 +117,17 @@ export const notificationRouter = createTRPCRouter({
                 message: "Bildirim bulunamadı"
             })
         }
+    }),
+
+    // DELETE - Notification'ı sil
+    deleteNotificationSettings: adminProcedure.input(z.object({
+        id: z.string()
+    })).mutation(async ({input})=>{
+        return await prisma.notificationSetting.delete({
+            where: {
+                id: input.id
+            }
+        })
     })
     
 })
