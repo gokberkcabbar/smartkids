@@ -189,28 +189,38 @@ export const userRouter = createTRPCRouter({
         message: `${input.userNo} veya ADMIN kişisinin yetkisi gerekli`
       })
     }
-    
-    await prisma.user.update({
+    const ifClassAvailable = await prisma.user.findUnique({
       where: {
         userNo: input.userNo
       },
-      include: {
+      select: {
         class: true
-      },
-      data: {
-        fJob: input.fJob,
-        fName: input.fName,
-        fPhone: input.fPhone,
-        mJob: input.mJob,
-        mName: input.mName,
-        mPhone: input.mPhone,
-        name: input.name,
-        tPhone: input.tPhone,
-        class: {
-          disconnect: true
-        }
       }
     })
+
+    if(ifClassAvailable?.class){
+      await prisma.user.update({
+        where: {
+          userNo: input.userNo
+        },
+        include: {
+          class: true
+        },
+        data: {
+          fJob: input.fJob,
+          fName: input.fName,
+          fPhone: input.fPhone,
+          mJob: input.mJob,
+          mName: input.mName,
+          mPhone: input.mPhone,
+          name: input.name,
+          tPhone: input.tPhone,
+          class: {
+            disconnect: true
+          }
+        }
+      })
+    }
     await prisma.user.update({
       where: {
         userNo: input.userNo
