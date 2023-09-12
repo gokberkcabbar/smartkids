@@ -328,8 +328,8 @@ export default async function handler(req : NextApiRequest, res : NextApiRespons
     port: 465,
     secure: true,
     auth: {
-      user: "sonergokberkcabbar@gmail.com",
-      pass: "ufcx vqwi zhvj qiyl",
+      user: process.env.NEXT_PUBLIC_MAIL_PROVIDER,
+      pass: process.env.NEXT_PUBLIC_MAIL_PROVIDER_PASSWORD,
     },
   })
 
