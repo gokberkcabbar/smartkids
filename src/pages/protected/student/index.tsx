@@ -4,7 +4,7 @@ import React from 'react'
 
 const StudentPage : NextPage = ({session}:any) => {
   return (
-    <div>index</div>
+    <div>gelecek bir şeyler</div>
   )
 }
 
