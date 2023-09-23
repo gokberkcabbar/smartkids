@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Head from "next/head";
 import Link from "next/link";
 import { api } from "~/utils/api";
@@ -16,7 +17,7 @@ import { Details } from "~/components/landingPage/Details";
 const Home: NextPage = ({session}:any) => {
   return (
     <div className="flex relative flex-col min-w-[100vw] min-h-screen">
-     <HeaderMenu />
+     <HeaderMenu/>
      <Hero />
      <Details />
     </div>

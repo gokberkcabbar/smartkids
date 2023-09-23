@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { useState } from 'react';
-import { createStyles, Header, Container, Group, Burger, rem, Box } from '@mantine/core';
+import { createStyles, Header, Container, Group, Burger, rem, Box, Drawer, ScrollArea, Divider, UnstyledButton, Center, Collapse, Button, Loader, ThemeIcon, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantine/ds';
-
+import { ModeStorage } from '../ModeStorage';
+import { IconChevronDown } from '@tabler/icons-react';
+import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 const links = [
   { link: '/', label: 'Ana Sayfa' },
   { link: '/galery', label: 'Galeri' },
@@ -32,6 +39,12 @@ const useStyles = createStyles((theme) => ({
     },
   },
 
+  hiddenDesktop: {
+    [theme.fn.largerThan('sm')]: {
+      display: 'none',
+    },
+  },
+
   link: {
     display: 'block',
     lineHeight: 1,
@@ -53,15 +66,40 @@ const useStyles = createStyles((theme) => ({
       color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
     },
   },
+
+  subLink: {
+    width: '100%',
+    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    borderRadius: theme.radius.md,
+
+    '&:hover' : {
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0]
+    },
+
+    '&:active': theme.activeStyles,
+  },
 }));
 
 
 
-export function HeaderMenu() {
+export const HeaderMenu = () => {
   const [opened, { toggle }] = useDisclosure(false);
   const [active, setActive] = useState(links[0]!.link);
-  const { classes, cx } = useStyles();
-
+  const { classes, cx, theme} = useStyles();
+  const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+  const router = useRouter()
+  const session = useSession()
+  const linkler = links.map((item) => (
+    <UnstyledButton className={classes.subLink} key={item.label}>
+      <Group noWrap align="flex-start">
+        <div>
+          <Text onClick={()=>router.push(`/protected/admin/${item.link}`)} size="sm" fw={500}>
+            {item.label}
+          </Text>
+        </div>
+      </Group>
+    </UnstyledButton>
+  ));
   const items = links.map((link) => (
     <a
       key={link.label}
@@ -77,15 +115,67 @@ export function HeaderMenu() {
   ));
 
   return (
+    <>
     <Header height={60} mb={120} className='fixed top-0 left-0 right-0'>
       <Container className={classes.header}>
         <MantineLogo size={28} />
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
-
+        <ModeStorage />
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
       </Container>
     </Header>
+
+    <Drawer
+        opened={opened}
+        onClose={toggle}
+        size="100%"
+        padding="md"
+        title="Navigation"
+        className={classes.hiddenDesktop}
+        zIndex={1000000}
+      >
+        <ScrollArea h={`calc(100vh - ${rem(60)})`} mx="-md">
+          <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
+
+          <a href="#" onClick={toggle} className={classes.link}>
+            Ana Sayfa
+          </a>
+          <a onClick={toggle} className={classes.link}>
+            Galeri
+          </a>
+          <a onClick={toggle} className={classes.link}>
+            Yorumlar
+          </a>
+          <a onClick={toggle} className={classes.link}>
+            Demo
+          </a>
+          <a onClick={toggle} className={classes.link}>
+            Bize Ulaşın
+          </a>
+          <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
+
+          <Group position="center" grow pb="xl" px="md">
+          {session.status === "authenticated" ? (
+            <>
+            <ModeStorage />
+            <Button onClick={()=>signOut({callbackUrl: "/"})} variant="default">Sign Out</Button>
+            </>
+          ) : (
+            session.status === "loading" ? (<Loader />) : (
+              <>
+              <ModeStorage />
+              <Button variant="default">Bize Ulaşın</Button>
+              <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
+              </>
+            )
+          )}
+          </Group>
+        </ScrollArea>
+      </Drawer>
+
+
+      </>
   );
 }
