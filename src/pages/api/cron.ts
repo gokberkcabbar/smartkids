@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { TransactionFor } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "~/server/db";
@@ -6,6 +7,9 @@ import nodemailer from 'nodemailer'
 
 export default async function handler(req : NextApiRequest, res : NextApiResponse) {
     
+  const forwarded = req.headers['x-forwarded-for'];
+
+  const ip = typeof forwarded === 'string' ? forwarded.split(/, /)[0] : req.socket.remoteAddress;
   //Notification ayarlarını çekme
   const notificationSettings = await prisma.notificationSetting.findMany({
       include: {
@@ -552,6 +556,9 @@ export default async function handler(req : NextApiRequest, res : NextApiRespons
       </tr>
     </tbody>
   </table>
+  <div>
+    ${ip}
+  </div>
 </div>
     
     

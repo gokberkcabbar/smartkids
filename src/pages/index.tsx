@@ -2,18 +2,18 @@ import Head from "next/head";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
-import { Button } from "@mantine/core";
+import { Button, Divider } from "@mantine/core";
 import { HeaderBar } from "~/components/HeaderBar";
 import { NextPage } from "next";
 import { getSession } from "next-auth/react";
 import { Role } from "@prisma/client";
+import { Hero } from "~/components/landingPage/Hero";
 
 const Home: NextPage = ({session}:any) => {
   return (
-    <div className="flex flex-col min-w-[100vh] min-h-screen">
-      <div className="fixed top-0 left-0 right-0">
-      <HeaderBar />
-      </div>
+    <div className="relative flex flex-col min-w-[100vw] min-h-screen">
+      
+     <Hero />
     </div>
   );
 }
