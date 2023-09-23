@@ -149,7 +149,7 @@ export const HeaderMenu = () => {
             Yorumlar
           </a>
           <a onClick={toggle} className={classes.link}>
-            Demo
+            Demo Ders
           </a>
           <a onClick={toggle} className={classes.link}>
             Bize Ulaşın

@@ -1,4 +1,4 @@
-import { Container, Grid, Group, Text, Title } from "@mantine/core";
+import { Container, Grid, Text, Title } from "@mantine/core";
 import Image from "next/image";
 import React from "react";
 
