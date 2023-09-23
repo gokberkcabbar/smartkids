@@ -71,7 +71,7 @@ export function Hero() {
   const { classes } = useStyles();
   const router = useRouter()
   return (
-    <div>
+    <div className='w-full'>
       <Container>
         <div className={classes.inner}>
           <div className={classes.content}>

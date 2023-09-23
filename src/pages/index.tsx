@@ -8,12 +8,17 @@ import { NextPage } from "next";
 import { getSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 import { Hero } from "~/components/landingPage/Hero";
+import { HeaderMenu } from "~/components/landingPage/HeaderMenu";
+import { Details } from "~/components/landingPage/Details";
+
+
 
 const Home: NextPage = ({session}:any) => {
   return (
-    <div className="relative flex flex-col min-w-[100vw] min-h-screen">
-      
+    <div className="flex relative flex-col min-w-[100vw] min-h-screen">
+     <HeaderMenu />
      <Hero />
+     <Details />
     </div>
   );
 }
