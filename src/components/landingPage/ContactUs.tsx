@@ -5,8 +5,8 @@ import React from "react";
 
 export const ContactUs = () => {
   return (
-    <Container size="lg">
-      <Grid id="contact" gutter='lg'>
+    <Container id="contact" size="lg">
+      <Grid gutter='lg'>
       <Grid.Col span={12}>
             <div className="flex [@media(min-width:768px)]:flex-row flex-col gap-2 w-full items-center justify-center">
                 <div className="flex flex-row gap-2 items-center">

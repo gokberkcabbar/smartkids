@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStyles, Header, Container, Group, Burger, rem, Box, Drawer, ScrollArea, Divider, UnstyledButton, Center, Collapse, Button, Loader, ThemeIcon, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantine/ds';
@@ -11,7 +11,7 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import {Link} from 'react-scroll'
+import Link from 'next/link';
 
 const links = [
   { link: 'hero', label: 'Ana Sayfa' },
@@ -92,6 +92,17 @@ export const HeaderMenu = () => {
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const router = useRouter()
   const session = useSession()
+  const [top, setTop] = useState<number | undefined>(0)
+
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) =>{
+    e.preventDefault()
+    const targetId = e.currentTarget.href.replace(/.*\#/, "");
+    console.log(targetId)
+    const element = document.getElementById(targetId)
+    element?.scrollIntoView({behavior: 'smooth', block: 'center'})
+  }
+  
+
   const linkler = links.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.label}>
       <Group noWrap align="flex-start">
@@ -104,19 +115,17 @@ export const HeaderMenu = () => {
     </UnstyledButton>
   ));
   const items = links.map((link) => (
-    <Link
+    <a
       key={link.label}
-      to={link.link}
-      smooth={true}
-      spy={true}
-      onClick={()=>{
+      href={`#${link.link}`}
+      onClick={(e)=>{
         setActive(link.link)
+        handleScroll(e)
       }}
-      duration={500}
-      className={cx(classes.link, { [classes.linkActive]: active === link.link })}
+      className={cx(classes.link)}
     >
       {link.label}
-    </Link>
+    </a>
   ));
 
   return (

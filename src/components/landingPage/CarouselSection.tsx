@@ -7,8 +7,8 @@ import Autoplay from 'embla-carousel-autoplay'
 export const CarouselSection = () => {
   const autoplay = useRef(Autoplay({delay: 2000}))
   return (
-    <div className='w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
-        <Container id='galery'>
+    <div id='galery' className='w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
+        <Container>
             <Carousel mx='auto' withIndicators withControls={false} loop align='center' breakpoints={[
                 {
                     minWidth: 'md',

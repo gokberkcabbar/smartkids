@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
+import React, { AnchorHTMLAttributes } from 'react';
 const useStyles = createStyles((theme) => ({
   inner: {
     display: 'flex',
@@ -70,9 +71,15 @@ const useStyles = createStyles((theme) => ({
 export function Hero() {
   const { classes } = useStyles();
   const router = useRouter()
+  const handleScroll = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>{
+    e.preventDefault()
+    const element = document.getElementById("contact")
+    element?.scrollIntoView({behavior: 'smooth', block: 'center'})
+  }
+  
   return (
-    <div className='w-full'>
-      <Container id='hero'>
+    <div id='hero' className='w-full'>
+      <Container>
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
@@ -107,8 +114,8 @@ export function Hero() {
               <Button onClick={()=>router.push('/auth/sign')} radius="xl" size="md" className={classes.control}>
                 Giriş Yap
               </Button>
-              <Button variant="default" radius="xl" size="md" className={classes.control}>
-                İletişime Geç
+              <Button onClick={(e)=>handleScroll(e)} variant="default" radius="xl" size="md" className={classes.control}>
+                  İletişime Geç
               </Button>
             </Group>
           </div>

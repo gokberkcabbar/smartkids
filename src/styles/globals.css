@@ -33,3 +33,8 @@ iframe {
       max-height: 100px;
     }
   }
+
+  html {
+    --scroll-behavior: smooth !important;
+    scroll-behavior: smooth !important;
+    }

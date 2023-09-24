@@ -10,7 +10,7 @@ export const DemoDers = () => {
 
   return (
     
-     <Container id="#demo" size='lg'>
+     <Container id="demo" size='lg'>
         <div data-youtube-video className="[@media(min-width:1024px)]:w-[800px]">
         <iframe
       title='Demo Ders'
