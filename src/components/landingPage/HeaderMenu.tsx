@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -10,12 +11,14 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import {Link} from 'react-scroll'
+
 const links = [
-  { link: '/', label: 'Ana Sayfa' },
-  { link: '/galery', label: 'Galeri' },
-  { link: '/comments', label: 'Yorumlar' },
-  { link: '/demo', label: 'Demo Ders' },
-  { link: '/contact', label: 'Bize Ulaşın' },
+  { link: 'hero', label: 'Ana Sayfa' },
+  { link: 'galery', label: 'Galeri' },
+  { link: 'comments', label: 'Yorumlar' },
+  { link: 'demo', label: 'Demo Ders' },
+  { link: 'contact', label: 'Bize Ulaşın' },
 ];
 
 
@@ -101,17 +104,19 @@ export const HeaderMenu = () => {
     </UnstyledButton>
   ));
   const items = links.map((link) => (
-    <a
+    <Link
       key={link.label}
-      href={link.link}
-      className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(link.link);
+      to={link.link}
+      smooth={true}
+      spy={true}
+      onClick={()=>{
+        setActive(link.link)
       }}
+      duration={500}
+      className={cx(classes.link, { [classes.linkActive]: active === link.link })}
     >
       {link.label}
-    </a>
+    </Link>
   ));
 
   return (

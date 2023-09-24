@@ -72,7 +72,7 @@ export function Hero() {
   const router = useRouter()
   return (
     <div className='w-full'>
-      <Container>
+      <Container id='hero'>
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
