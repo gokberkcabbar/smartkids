@@ -107,15 +107,23 @@ export const HeaderMenu = () => {
     <UnstyledButton className={classes.subLink} key={item.label}>
       <Group noWrap align="flex-start">
         <div>
-          <Text onClick={()=>router.push(`/protected/admin/${item.link}`)} size="sm" fw={500}>
-            {item.label}
-          </Text>
+        <Link
+          key={item.label}
+          href={`#${item.link}`}
+          onClick={(e)=>{
+            toggle()
+            handleScroll(e)
+          }}
+          className={cx(classes.link)}
+        >
+          {item.label}
+        </Link>
         </div>
       </Group>
     </UnstyledButton>
   ));
   const items = links.map((link) => (
-    <a
+    <Link
       key={link.label}
       href={`#${link.link}`}
       onClick={(e)=>{
@@ -125,7 +133,7 @@ export const HeaderMenu = () => {
       className={cx(classes.link)}
     >
       {link.label}
-    </a>
+    </Link>
   ));
 
   return (
@@ -146,28 +154,13 @@ export const HeaderMenu = () => {
         onClose={toggle}
         size="100%"
         padding="md"
-        title="Navigation"
         className={classes.hiddenDesktop}
         zIndex={1000000}
       >
         <ScrollArea h={`calc(100vh - ${rem(60)})`} mx="-md">
           <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
 
-          <a href="#" onClick={toggle} className={classes.link}>
-            Ana Sayfa
-          </a>
-          <a onClick={toggle} className={classes.link}>
-            Galeri
-          </a>
-          <a onClick={toggle} className={classes.link}>
-            Yorumlar
-          </a>
-          <a onClick={toggle} className={classes.link}>
-            Demo Ders
-          </a>
-          <a onClick={toggle} className={classes.link}>
-            Bize Ulaşın
-          </a>
+          {linkler}
           <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
 
           <Group position="center" grow pb="xl" px="md">
