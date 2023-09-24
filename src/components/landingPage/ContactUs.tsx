@@ -2,13 +2,16 @@ import { Container, Grid, Text, Title } from "@mantine/core";
 import { IconBrandInstagram, IconBrandWhatsapp, IconBrandYoutube } from "@tabler/icons-react";
 import Link from "next/link";
 import React from "react";
-
+import { motion } from "framer-motion";
 export const ContactUs = () => {
   return (
     <Container id="contact" size="lg">
       <Grid gutter='lg'>
       <Grid.Col span={12}>
-            <div className="flex [@media(min-width:768px)]:flex-row flex-col gap-2 w-full items-center justify-center">
+            <motion.div initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="flex [@media(min-width:768px)]:flex-row flex-col gap-2 w-full items-center justify-center">
                 <div className="flex flex-row gap-2 items-center">
                     <IconBrandWhatsapp size={32} />
                     <Text fz='lg'>+90 541 644 59 06</Text>
@@ -21,10 +24,13 @@ export const ContactUs = () => {
                     <IconBrandYoutube size={32} />
                     <Link href='https://www.youtube.com/@smartkidssamsun5015'><Text fz='lg'>SmartKids Samsun</Text></Link>
                 </div>
-            </div>
+            </motion.div>
         </Grid.Col>
         <Grid.Col span={12} md={6}>
-          <div className="flex flex-col w-full gap-3">
+          <motion.div initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="flex flex-col w-full gap-3">
             <div className="flex w-full items-center justify-center">
                 <Text fz='xl'>Pera Sanat Akademi</Text>
             </div>
@@ -39,11 +45,14 @@ export const ContactUs = () => {
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
             </div>
-          </div>
+          </motion.div>
         </Grid.Col>
 
         <Grid.Col span={12} md={6}>
-        <div className="flex flex-col w-full gap-3">
+        <motion.div initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="flex flex-col w-full gap-3">
             <div className="flex w-full items-center justify-center">
                 <Text fz='xl'>Atakum - SmartKids VIP</Text>
             </div>
@@ -58,7 +67,7 @@ export const ContactUs = () => {
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
             </div>
-          </div>
+          </motion.div>
         </Grid.Col>
       </Grid>
     </Container>

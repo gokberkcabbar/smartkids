@@ -15,22 +15,35 @@ import { CarouselSection } from "~/components/landingPage/CarouselSection";
 import { Reviews } from "~/components/landingPage/Reviews";
 import { DemoDers } from "~/components/landingPage/DemoDers";
 import { ContactUs } from "~/components/landingPage/ContactUs";
-
+import { motion } from "framer-motion";
 
 
 const Home: NextPage = ({session}:any) => {
+  const MotionTitle = motion(Title)
   return (
     <div className="flex relative flex-col min-w-[100vw] h-screen overflow-x-hidden">
      <HeaderMenu/>
      <Hero />
      <Details />
-     <Title className="mt-16 mb-8 w-full flex justify-center items-center">Galeri</Title>
+     <MotionTitle initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="mt-16 mb-8 w-full flex justify-center items-center">Galeri</MotionTitle>
      <CarouselSection />
-     <Title className="mt-16 mb-8 w-full flex justify-center items-center">Yorumlar</Title>
+     <MotionTitle initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="mt-16 mb-8 w-full flex justify-center items-center">Yorumlar</MotionTitle>
      <Reviews />
-     <Title className="mt-16 mb-8 w-full flex justify-center items-center">Demo Ders</Title>
+     <MotionTitle initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="mt-16 mb-8 w-full flex justify-center items-center">Demo Ders</MotionTitle>
      <DemoDers />
-     <Title className="mt-16 mb-8 w-full flex justify-center items-center">Bize Ulaşın</Title>
+     <MotionTitle initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="mt-16 mb-8 w-full flex justify-center items-center">Bize Ulaşın</MotionTitle>
      <ContactUs />
     </div>
   );

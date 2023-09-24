@@ -3,11 +3,14 @@ import { Carousel } from '@mantine/carousel'
 import { Container } from '@mantine/core'
 import Image from 'next/image'
 import Autoplay from 'embla-carousel-autoplay'
-
+import { motion } from 'framer-motion'
 export const CarouselSection = () => {
   const autoplay = useRef(Autoplay({delay: 2000}))
   return (
-    <div id='galery' className='w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
+    <motion.div initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} id='galery' className='w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
         <Container>
             <Carousel mx='auto' withIndicators withControls={false} loop align='center' breakpoints={[
                 {
@@ -55,6 +58,6 @@ export const CarouselSection = () => {
                 </Carousel.Slide>
             </Carousel>
         </Container>
-    </div>
+    </motion.div>
   )
 }

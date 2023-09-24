@@ -1,9 +1,12 @@
 import { Blockquote, Card, Container, Grid, Title } from "@mantine/core";
 import React from "react";
-
+import { motion } from "framer-motion";
 export const Reviews = () => {
   return (
-    <div className="flex w-full">
+    <motion.div initial={{ opacity: 0, y: 100 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{duration: 0.6}} className="flex w-full">
       <Container id="comments" size='lg'>
       <Grid>
         <Grid.Col span={12} md={4}>
@@ -27,6 +30,6 @@ export const Reviews = () => {
         </Grid.Col>
       </Grid>
       </Container>
-    </div>
+    </motion.div>
   );
 };

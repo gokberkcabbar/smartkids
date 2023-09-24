@@ -102,6 +102,11 @@ export const HeaderMenu = () => {
     element?.scrollIntoView({behavior: 'smooth', block: 'center'})
   }
   
+  const scrollContactUs = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const targetId = "contact"
+    const element = document.getElementById(targetId)
+    element?.scrollIntoView({behavior: 'smooth', block: 'center'})
+  }
 
   const linkler = links.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.label}>
@@ -173,7 +178,10 @@ export const HeaderMenu = () => {
             session.status === "loading" ? (<Loader />) : (
               <>
               <ModeStorage />
-              <Button variant="default">Bize Ulaşın</Button>
+              <Button onClick={(e)=>{
+                toggle()
+                scrollContactUs(e)
+              }} variant="default">Bize Ulaşın</Button>
               <Button onClick={()=>router.push('/auth/sign')}>Giriş Yap</Button>
               </>
             )

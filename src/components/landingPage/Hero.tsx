@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
+import { motion } from 'framer-motion';
 import React, { AnchorHTMLAttributes } from 'react';
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -81,7 +82,12 @@ export function Hero() {
     <div id='hero' className='w-full'>
       <Container>
         <div className={classes.inner}>
-          <div className={classes.content}>
+          <motion.div 
+          initial={{ opacity: 0, x: -100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{duration: 0.6}}
+          className={classes.content}>
             <Title className={classes.title}>
               Çocuklarınız için doğru kapıyı aralayın
             </Title>
@@ -118,8 +124,13 @@ export function Hero() {
                   İletişime Geç
               </Button>
             </Group>
-          </div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, x: 100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{duration: 0.6}}>
           <Image src={"https://www.teachhub.com/wp-content/uploads/2020/09/Sept-1-How-to-Use-Total-Physical-Response-TPR-in-the-Classroom_web.jpg"} height={427} alt='TPR image' className={classes.image} />
+          </motion.div>
         </div>
       </Container>
     </div>
