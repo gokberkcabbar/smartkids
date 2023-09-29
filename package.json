@@ -12,6 +12,8 @@
   "dependencies": {
     "@mantine/carousel": "^6.0.16",
     "@mantine/core": "^6.0.15",
+    "@mantine/dates": "^6.0.16",
+    "@mantine/dropzone": "^6.0.16",
     "@mantine/ds": "^6.0.16",
     "@mantine/form": "^6.0.15",
     "@mantine/hooks": "^6.0.15",

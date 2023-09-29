@@ -95,6 +95,21 @@ model Class {
     user      User[]
     location  Location
     ClassPage ClassPage?
+    task      Task[]
+}
+
+model Task {
+    id        String   @id @default(cuid())
+    name      String
+    class     Class?   @relation(fields: [classId], references: [id], onDelete: Cascade)
+    fileLink  String
+    createdAt DateTime @default(now())
+    deadline  DateTime
+
+    classId String
+
+    @@unique([fileLink])
+    @@index([classId])
 }
 
 enum Location {
