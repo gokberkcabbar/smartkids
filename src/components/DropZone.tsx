@@ -57,12 +57,14 @@ export function DropZone({fileDatas, setFileDatas}:{fileDatas: {
             
             const fileBlobURL = URL.createObjectURL(files[0]!)
             const fileBase64URL = await blobToBase64(files[0]!)
+
+
             setFileDatas({
               fileData: files[0]!,
               fileURL: fileBase64URL
             })
            
-            console.log(fileBlobURL)
+            
           
         }}
         className={classes.dropzone}

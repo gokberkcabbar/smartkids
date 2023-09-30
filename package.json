@@ -38,6 +38,7 @@
     "cloudinary": "^1.37.3",
     "embla-carousel-autoplay": "^7.1.0",
     "embla-carousel-react": "^7.1.0",
+    "formidable": "^3.5.1",
     "framer-motion": "^10.16.4",
     "next": "^13.4.2",
     "next-auth": "^4.22.1",
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/eslint": "^8.37.0",
+    "@types/formidable": "^3.4.3",
     "@types/node": "^18.16.0",
     "@types/nodemailer": "^6.4.10",
     "@types/prettier": "^2.7.2",

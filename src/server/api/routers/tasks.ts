@@ -78,22 +78,31 @@ export const tasksRouter = createTRPCRouter({
         fileLink: z.string(),
         className: z.string(),
         taskName: z.string(),
-    })).mutation(async ({input, ctx})=>{
+    })).mutation(async ({input})=>{
 
-        const fileLink = await ctx.cloudinary.uploader.upload(input.fileLink, {resource_type: "raw"})
-        return await prisma.task.create({
-            data: {
-                deadline: input.deadline,
-                fileLink: fileLink.url,
-                class: {
-                    connect: {
-                        name: input.className
-                    }
-                },
-                name: input.taskName,
-                
-            }
-        })
+
+        try {
+            return await prisma.task.create({
+                data: {
+                    deadline: input.deadline,
+                    fileLink: input.fileLink,
+                    class: {
+                        connect: {
+                            name: input.className
+                        }
+                    },
+                    name: input.taskName,
+                    
+                }
+            })
+        }
+        catch (error) {
+            throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: error as string
+            })
+        }
+        
     }),
 
     //UPDATE - Task'ı Update et

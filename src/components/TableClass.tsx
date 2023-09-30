@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -23,6 +24,7 @@ import { useForm } from "@mantine/form";
 import { Location, User } from "@prisma/client";
 import {
   IconChecklist,
+  IconDeviceFloppy,
   IconDownload,
   IconPencil,
   IconPlus,
@@ -116,7 +118,8 @@ export const TableClass = ({
     searchOdev: string,
     isNewTaskOpen: boolean,
     taskName: string,
-    deadLineDate: Date
+    deadLineDate: Date,
+    editMode: boolean
   }>({
     initialValues: {
       className: "",
@@ -124,7 +127,8 @@ export const TableClass = ({
       searchOdev: "",
       isNewTaskOpen: false,
       taskName: "",
-      deadLineDate: new Date()
+      deadLineDate: new Date(),
+      editMode: false
     }
   })
   const classPageForm = useForm<{
@@ -464,21 +468,24 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }, (values: {
   className: string;
   isOpen: boolean;
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }) => {
   className: string;
   isOpen: boolean;
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }>}) => {
   const {data: getTask, isFetched: getTaskFetched} = api.task.getTask.useQuery({className: odevForm.values.className})
   const context = api.useContext()
@@ -508,20 +515,20 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
         getTask.filter((val)=>val.name.includes(odevForm.values.searchOdev)).map((val)=>(
           <Grid.Col key={val.fileLink} span={12} md={6}>
             <Card radius={15} p='md' >
-            <div className="flex flex-col w-full h-full">
-              <div className="flex flex-row justify-between w-full items-center [@media(min-width:1024px)]:hidden">
+            <div className="flex flex-col gap-3 w-full h-full">
+              <div className="flex flex-col gap-3  w-full [@media(min-width:1024px)]:hidden">
                 <Text fz='xl'>Ödev Adı: <Text fz='lg'>{val.name}</Text></Text>
                 <Text fz='xl'>Sınıf Adı: <Text fz='lg'>{val.class?.name}</Text></Text>
               </div>
-                <div className="flex flex-col gap-3 [@media(max-width:1024px)]:hidden">
-                <Text fz='lg'>{val.name}</Text>
+                <div className="flex flex-row justify-between items-center [@media(max-width:1024px)]:hidden">
+                <Text fz='xl'>Ödev Adı: <Text fz='lg'>{val.name}</Text></Text>
                 <Text fz='xl'>Sınıf Adı: <Text fz='lg'>{val.class?.name}</Text></Text>
                 </div>
-                <div className="flex flex-row w-full justify-between items-center [@media(min-width:1024px)]:hidden">
+                <div className="flex flex-col gap-3  w-full [@media(min-width:1024px)]:hidden">
                   <Text>Ödev Oluşturma Tarihi: <Text color="blue">{val.createdAt.toLocaleDateString('tr-TR')}</Text></Text>
                   <Text>Son Teslim Tarihi: <Text color={val.deadline >= now ? "red" : "cyan"}>{val.deadline.toLocaleDateString('tr-TR')}</Text></Text>
                 </div>
-                <div className="flex flex-col gap-3 [@media(max-width:1024px)]:hidden">
+                <div className="flex flex-row justify-between items-center [@media(max-width:1024px)]:hidden">
                 <Text>Ödev Oluşturma Tarihi: <Text color="blue">{val.createdAt.toLocaleDateString('tr-TR')}</Text></Text>
                 <Text>Son Teslim Tarihi: <Text color={val.deadline >= now ? "red" : "cyan"}>{val.deadline.toLocaleDateString('tr-TR')}</Text></Text>
                 </div>
@@ -530,13 +537,6 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
                     fileLink: val.fileLink
                   })} variant="filled" color="red">
                     <IconTrash size={30} />
-                  </ActionIcon>
-
-                  <ActionIcon variant="filled">
-                    <IconPencil onClick={()=>{
-                      odevForm.setFieldValue('taskName', val.name)
-                      odevForm.setFieldValue('deadLineDate', val.deadline)
-                    }} size={30} />
                   </ActionIcon>
 
                   <ActionIcon component={Link} download={val.fileLink} href={val.fileLink} variant="light">
@@ -549,7 +549,7 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
         ))
       )
     }
-  }, [getTask])
+  }, [getTask, odevForm.values.searchOdev])
   
   return (
     <>
@@ -590,33 +590,42 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }, (values: {
   className: string;
   isOpen: boolean;
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }) => {
   className: string;
   isOpen: boolean;
   searchOdev: string;
   isNewTaskOpen: boolean;
   taskName: string;
-  deadLineDate: Date
+  deadLineDate: Date,
+  editMode: boolean
 }>}) => {
   const [selectableClasses, setSelectableClasses] = useState<string[]>([])
   const {data: getClasses} = api.class.getClasses.useQuery()
   const context = api.useContext()
-  const {mutate: createTask} = api.task.createTask.useMutation({
+  const [loadingTask, setLoadingTask] = useState(false)
+  const {mutate: createTask, isLoading: createTaskLoading} = api.task.createTask.useMutation({
     onSuccess: () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      context.class.invalidate();
+      context.task.invalidate();
       notifications.show({
         message: "Ödev başarıyla oluşturuldu",
         color: "green",
         autoClose: 2000,
+        onClose: ()=>{
+          odevForm.setFieldValue('isNewTaskOpen', false)
+          odevForm.setFieldValue('isOpen', true)
+          setLoadingTask(false)
+        }
       });
     },
     onError: (error) => {
@@ -625,6 +634,9 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
         message: error.message,
         color: "red",
         autoClose: 2000,
+        onClose: ()=>{
+          setLoadingTask(false)
+        }
       });
     },
   })
@@ -658,15 +670,31 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
         <DateInput label="Son Teslim Tarihi" {...odevForm.getInputProps('deadLineDate')} valueFormat="DD MM YYYY"/>
         <DropZone fileDatas={fileDatas} setFileDatas={setFileDatas} />
         <Group position='right'>
-        <Button onClick={()=>{
-            createTask({
-              className: odevForm.values.className,
-              deadline: odevForm.values.deadLineDate.toISOString(),
-              fileLink: fileDatas.fileURL,
-              taskName: odevForm.values.taskName
-            })
-          
-        }} disabled={odevForm.values.taskName.length === 0 || odevForm.values.className.length === 0 || fileDatas ? false : true}>Onayla</Button>
+        <Button onClick={async ()=>{
+            setLoadingTask(true)
+            const formData = new FormData()
+            formData.append('file', fileDatas.fileData)
+            try {
+              setLoadingTask(true)
+              const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+              if(response.ok){
+                const data = await response.json()
+                const filePath = data.urlCloud as string
+                createTask({
+                  className: odevForm.values.className,
+                  deadline: odevForm.values.deadLineDate.toISOString(),
+                  fileLink: filePath,
+                  taskName: odevForm.values.taskName
+                })
+            }
+          }
+            catch (error) {
+             
+            }
+        }} disabled={odevForm.values.taskName.length === 0 || odevForm.values.className.length === 0 || fileDatas ? false : true}>{createTaskLoading || loadingTask ? <Loader /> : "Onayla"}</Button>
         </Group>
       </div>
     </Modal>

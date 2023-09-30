@@ -6,6 +6,12 @@ await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
 const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb'
+    },
+    responseLimit: '100mb'
+  },
   reactStrictMode: true,
   images: {
     domains: ['res.cloudinary.com']
