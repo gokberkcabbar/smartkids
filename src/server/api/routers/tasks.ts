@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -13,6 +11,7 @@ import bcrpyt from 'bcrypt'
 import { generateRandomNumber } from "~/utils/generateUserNo";
 import { TransactionFor } from "@prisma/client";
 import { UploadApiResponse } from "cloudinary";
+import { FileWithPath } from '@mantine/dropzone';
 
 export const tasksRouter = createTRPCRouter({
     //GET - Sınıfa ait task'ları çek
@@ -78,9 +77,10 @@ export const tasksRouter = createTRPCRouter({
         deadline: z.string(),
         fileLink: z.string(),
         className: z.string(),
-        taskName: z.string()
+        taskName: z.string(),
     })).mutation(async ({input, ctx})=>{
-        const fileLink = await ctx.cloudinary.uploader.upload(input.fileLink)
+
+        const fileLink = await ctx.cloudinary.uploader.upload(input.fileLink, {resource_type: "raw"})
         return await prisma.task.create({
             data: {
                 deadline: input.deadline,
@@ -91,6 +91,7 @@ export const tasksRouter = createTRPCRouter({
                     }
                 },
                 name: input.taskName,
+                
             }
         })
     }),

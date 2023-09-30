@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { useRef, useState } from 'react';
 import { Text, Group, Button, createStyles, rem, Grid } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
@@ -27,21 +28,47 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export function DropZone({files, setFiles}:{files: FileWithPath | null, setFiles: React.Dispatch<React.SetStateAction<FileWithPath | null>>}) {
+const blobToBase64: (blob: FileWithPath)=>Promise<string> = (blob: FileWithPath) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(blob);
+  return new Promise(resolve => {
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
+};
+
+export function DropZone({fileDatas, setFileDatas}:{fileDatas: {
+  fileData: FileWithPath;
+  fileURL: string;
+}, setFileDatas: React.Dispatch<React.SetStateAction<{
+  fileData: FileWithPath;
+  fileURL: string;
+}>>}) {
   const { classes, theme } = useStyles();
   const openRef = useRef<() => void>(null);
-  
-  console.log(files)
+  console.log(fileDatas)
   return (
     <>
     <div className={classes.wrapper}>
       <Dropzone
         openRef={openRef}
-        onDrop={(files) => setFiles(files[0]!)}
-        multiple= {false}
+        onDrop={async (files) =>{
+            
+            const fileBlobURL = URL.createObjectURL(files[0]!)
+            const fileBase64URL = await blobToBase64(files[0]!)
+            setFileDatas({
+              fileData: files[0]!,
+              fileURL: fileBase64URL
+            })
+           
+            console.log(fileBlobURL)
+          
+        }}
         className={classes.dropzone}
+        multiple={false}
         radius="md"
-        accept={[MIME_TYPES.pdf, MIME_TYPES.jpeg, MIME_TYPES.docx, MIME_TYPES.doc, MIME_TYPES.ppt, MIME_TYPES.pptx, MIME_TYPES.xls, MIME_TYPES.xlsx, MIME_TYPES.png]}
+        accept={[MIME_TYPES.pdf, MIME_TYPES.jpeg, MIME_TYPES.docx, MIME_TYPES.doc, MIME_TYPES.zip, MIME_TYPES.ppt, MIME_TYPES.pptx, MIME_TYPES.xls, MIME_TYPES.xlsx, MIME_TYPES.png]}
         maxSize={30 * 1024 ** 2}
         useFsAccessApi={false}
       >
@@ -82,7 +109,7 @@ export function DropZone({files, setFiles}:{files: FileWithPath | null, setFiles
       </Button>
     </div>
     <div className='mt-4 w-full'>
-        <Text>{files?.name}</Text>
+        {fileDatas ? <a href={fileDatas.fileURL} download>{fileDatas.fileData.name}</a> : <Text>Dosya Yüklenmedi</Text>}
     </div>
     </>
   );

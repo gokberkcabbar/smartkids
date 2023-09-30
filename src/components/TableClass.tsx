@@ -40,6 +40,7 @@ import Link from "next/link";
 import { DateInput } from "@mantine/dates";
 import { DropZone } from "./DropZone";
 import { FileWithPath } from "@mantine/dropzone";
+import { readFileSync } from "fs";
 
 export type classPageFormTypes = UseFormReturnType<
   {
@@ -504,7 +505,7 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
     if(getTask){
       const now = new Date()
       setTaskCards(
-        getTask.filter((val)=>val.name.includes(odevForm.values.className)).map((val)=>(
+        getTask.filter((val)=>val.name.includes(odevForm.values.searchOdev)).map((val)=>(
           <Grid.Col key={val.fileLink} span={12} md={6}>
             <Card radius={15} p='md' >
             <div className="flex flex-col w-full h-full">
@@ -619,6 +620,7 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
       });
     },
     onError: (error) => {
+      console.log(error.message)
       notifications.show({
         message: error.message,
         color: "red",
@@ -626,7 +628,11 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
       });
     },
   })
-  const [files, setFiles] = useState<FileWithPath | null>(null)
+
+  const [fileDatas, setFileDatas] = useState<{
+    fileData: FileWithPath,
+    fileURL: string
+  }>(null as unknown as {fileData: FileWithPath, fileURL: string})
   useEffect(() => {
     if(getClasses){
       setSelectableClasses(getClasses.map((val)=>(
@@ -650,14 +656,17 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
           <Select label="Sınıf" data={selectableClasses} {...odevForm.getInputProps('className')}/>
         </div>
         <DateInput label="Son Teslim Tarihi" {...odevForm.getInputProps('deadLineDate')} valueFormat="DD MM YYYY"/>
-        <DropZone files={files} setFiles={setFiles} />
+        <DropZone fileDatas={fileDatas} setFileDatas={setFileDatas} />
         <Group position='right'>
-        <Button onClick={()=>createTask({
-          className: odevForm.values.className,
-          deadline: odevForm.values.deadLineDate.toLocaleString('tr-TR'),
-          fileLink: files ? files.name : "",
-          taskName: odevForm.values.taskName
-        })} disabled={odevForm.values.taskName.length === 0 || odevForm.values.className.length === 0 || files ? false : true}>Onayla</Button>
+        <Button onClick={()=>{
+            createTask({
+              className: odevForm.values.className,
+              deadline: odevForm.values.deadLineDate.toISOString(),
+              fileLink: fileDatas.fileURL,
+              taskName: odevForm.values.taskName
+            })
+          
+        }} disabled={odevForm.values.taskName.length === 0 || odevForm.values.className.length === 0 || fileDatas ? false : true}>Onayla</Button>
         </Group>
       </div>
     </Modal>
