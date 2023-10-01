@@ -244,7 +244,7 @@ export const classRouter = createTRPCRouter({
         })
         if(classInfo){
             const currentLayoutIdList = classInfo.ClassPage!.elements.map((val)=>val.layoutId)
-            const layoutId = consecutiveCheck(currentLayoutIdList)
+            const layoutId = consecutiveCheck(currentLayoutIdList.sort(function(a, b){return a - b}))
             const newLayout = {"w":4,"h":5,"x":(layoutId - 1) * 4,"y":0,"i":layoutId.toString(),"minW":1,"minH":1,"static":false}
             const newContent = `<p>Deneme</p>`
             return await prisma.classPage.update({

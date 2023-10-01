@@ -38,3 +38,8 @@ iframe {
     --scroll-behavior: smooth !important;
     scroll-behavior: smooth !important;
     }
+  
+  img[alt="Sınıf İçeriği Görseli"]{
+    width: 100%;
+    object-fit: contain;
+  }

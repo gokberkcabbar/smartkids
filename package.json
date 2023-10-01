@@ -26,6 +26,7 @@
     "@tabler/icons-react": "^2.23.0",
     "@tanstack/react-query": "^4.29.7",
     "@tiptap/extension-highlight": "^2.0.4",
+    "@tiptap/extension-image": "^2.1.11",
     "@tiptap/extension-text-align": "^2.0.4",
     "@tiptap/extension-youtube": "^2.0.4",
     "@tiptap/react": "^2.0.4",

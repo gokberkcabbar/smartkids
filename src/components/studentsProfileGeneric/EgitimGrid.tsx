@@ -21,6 +21,7 @@ import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
+import { useRouter } from 'next/router'
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
 
@@ -38,6 +39,7 @@ export interface layoutType {
 
 export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {fetched: boolean, setFetched: React.Dispatch<SetStateAction<boolean>>, classProfilePage: classProfilePageType, className: string}) => {
   const [textEditorState, setTextEditorState] = useState<string>("")
+  const router = useRouter()
   const [layoutChange, setLayoutChange] = useState<ReactGridLayout.Layout[]>([])
   const [layout, setLayout] = useState<layoutType>()
   const [editActivate, setEditActivate] = useState("")
@@ -86,10 +88,11 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
     if(classProfilePage){
             setProfilePage(classProfilePage.map((val)=>{
                 const parsedLayout: layoutItem = JSON.parse(val.layout)
+                console.log(val.id, parsedLayout.i, editActivate)
                 return ({
                     classPageId: val.classPageId,
                     content: val.content,
-                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: parsedLayout.i !== editActivate ? true : false},
+                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: (editActivate === parsedLayout.i && router.pathname === "/protected/admin/classes") || router.pathname !== "/protected/admin/classes" ? false : true, isResizable: router.pathname !== "/protected/admin/classes" ? false : true},
                     id: val.id
                 })
             }))
@@ -131,7 +134,8 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
         
     }
   
-  }, [fetched, editActivate, lgBreakpoint])
+  }, [fetched, editActivate, profilePage, lgBreakpoint])
+  console.log(router)
 
   useEffect(() => {
     if(!lgBreakpoint){
@@ -161,8 +165,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
   
   }, [refArray])
   
-  console.log(refArray)
-
+  
   return (
     <>
         {fetched && layout && layout.layouts.lg.length > 0 ? (
@@ -173,9 +176,16 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                 return (
                  <div key={val.layout.i} className='flex flex-col w-full h-full'>
                  <Card className='relative flex flex-col w-full h-full'>
-                     <div className='bg-slate-200/10 z-30 px-8 absolute top-0 left-0 right-0 h-[30px] flex flex-row justify-between items-center'>
+                     <div className={`bg-slate-200/10 z-30 px-8 absolute top-0 left-0 right-0 h-[30px] flex flex-row justify-between items-center ${router.pathname !== "/protected/admin/classes" ? "hidden" : ""}`}>
                          <ActionIcon hidden={val.layout.editMode} onClick={()=>{
-                            setEditActivate(val.layout.i)
+                            setEditActivate((prev)=>{
+                                if(prev !== val.layout.i){
+                                    return val.layout.i
+                                }
+                                else{
+                                    return ""
+                                }
+                            })
                          }}>
                              <IconPencil size={20} />
                          </ActionIcon>
@@ -190,7 +200,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                              })} size={20} />
                          </ActionIcon>
                      </div>
-                     {val.layout.editMode ? (<RichTextEditorCard setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>) : (
+                     {val.layout.editMode ? (<RichTextEditorCard parsedContent={parsedContent} setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>) : (
                         <div ref={refArray[index]} dangerouslySetInnerHTML={{__html: parsedContent}}></div>
                      )}
                  </Card>
