@@ -18,11 +18,11 @@ export const ContactUs = () => {
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                     <IconBrandInstagram size={32} />
-                    <Link href='https://www.instagram.com/smartkidssamsun/'><Text fz='lg'>@smartkidssamsun</Text></Link>
+                    <Text component={Link} href='https://www.instagram.com/smartkidssamsun/'><Text fz='lg'>@smartkidssamsun</Text></Text>
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                     <IconBrandYoutube size={32} />
-                    <Link href='https://www.youtube.com/@smartkidssamsun5015'><Text fz='lg'>SmartKids Samsun</Text></Link>
+                    <Text component={Link} href='https://www.youtube.com/@smartkidssamsun5015'><Text fz='lg'>SmartKids Samsun</Text></Text>
                 </div>
             </motion.div>
         </Grid.Col>
