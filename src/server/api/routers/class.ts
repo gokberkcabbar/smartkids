@@ -334,6 +334,32 @@ export const classRouter = createTRPCRouter({
                 }
             })
         }
+    }),
+
+    //GET- Lokasyona göre sınıf sayıları
+    getAllClassesClassifiedWithLocation: adminProcedure.query(async ()=>{
+        const atakumClasses = await prisma.class.findMany({
+            where: {
+                location: "ATAKUM"
+            },
+            select: {
+                name: true
+            }
+        })
+        const peraClasses = await prisma.class.findMany({
+            where: {
+                location: "PERA"
+            },
+            select: {
+                name: true
+            }
+        })
+        return (
+            {
+                atakumInfo: atakumClasses,
+                peraInfo: peraClasses
+            }
+        )
     })
 
 })

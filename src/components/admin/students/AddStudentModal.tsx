@@ -72,7 +72,20 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
             autoClose: 1000,
             onClose: ()=>{
                 classForm.reset()
-                newStudentForm.reset()
+                newStudentForm.setValues({
+                    name: "",
+                    age: undefined,
+                    className: undefined,
+                    schoolClass: undefined,
+                    password: generateRandomPassword(),
+                    fJob: undefined,
+                    fName: undefined,
+                    fPhone: undefined,
+                    mJob: undefined,
+                    mName: undefined,
+                    mPhone: undefined,
+                    tPhone: undefined
+                })
                 studentsForm.setFieldValue('addStudentModal', false)
             }
         })

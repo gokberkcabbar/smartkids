@@ -11,7 +11,7 @@ import {notifications} from '@mantine/notifications'
 
 export const ProfileTab = ({props}: {props: PageProps}) => {
   const router = useRouter()
-  const {parsedURL} = router.query
+  const parsedURL = router.query
   const context = api.useContext()
   const {data: classes} = api.class.getClasses.useQuery(undefined, {
     refetchOnWindowFocus: false
@@ -111,7 +111,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
       }
     }
   };
-  
+  console.log(router.query)
   return (
     <>
         <div className='flex flex-col w-full h-full items-center'>
@@ -143,7 +143,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                 <div className='flex flex-col gap-4'>
                     <TextInput {...form.getInputProps('name')} label="Ad Soyad" />
                     <TextInput value={form.values.userNo} label="Öğrenci No" disabled/>
-                    {props.currentSession.user.userNo === parsedURL ? (
+                    {parsedURL.userId === props.currentSession.user.userNo ? (
                         <Button onClick={()=>setOpenPasswordModal(true)} variant='default'>Şifre Güncelle</Button>
                     ) : (
                         null

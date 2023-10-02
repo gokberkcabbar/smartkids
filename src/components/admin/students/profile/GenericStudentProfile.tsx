@@ -9,7 +9,7 @@ import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
 
 
-export const GenericStudentProfile = ({form, children}:{form: studentProfileAppShellProp, children: React.ReactNode}) => {
+export const GenericStudentProfile = ({PageProps, form, children}:{PageProps: PageProps, form: studentProfileAppShellProp, children: React.ReactNode}) => {
   
   return (
     <AppShell
@@ -33,7 +33,7 @@ export const GenericStudentProfile = ({form, children}:{form: studentProfileAppS
       
       <Navbar.Section className='flex flex-col gap-8' mt="md">
         <Divider />
-        <Button variant='filled' color='red' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconTrash size={24}/>}>Sil</Button>
+        <Button disabled={PageProps.currentSession.user.role !== "ADMIN"} variant='filled' color='red' fullWidth className='hidden [@media(min-width:768px)]:block' leftIcon={<IconTrash size={24}/>}>Sil</Button>
         <ActionIcon variant='filled' color='red' className='block [@media(min-width:768px)]:hidden'>
             <IconTrash size={24} />
         </ActionIcon>

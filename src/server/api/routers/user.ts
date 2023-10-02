@@ -220,22 +220,39 @@ export const userRouter = createTRPCRouter({
           }
         }
       })
+      await prisma.user.update({
+        where: {
+          userNo: input.userNo
+        },
+        include: {
+          class: true
+        },
+        data: {
+          class: {
+            connect: {
+              name: input.className ? input.className : undefined
+            }
+          }
+        }
+      })
     }
+    
     await prisma.user.update({
       where: {
         userNo: input.userNo
       },
-      include: {
-        class: true
-      },
       data: {
-        class: {
-          connect: {
-            name: input.className ? input.className : undefined
-          }
-        }
+        fJob: input.fJob,
+        fName: input.fName,
+        fPhone: input.fPhone,
+        mJob: input.mJob,
+        mName: input.mName,
+        mPhone: input.mPhone,
+        name: input.name,
+        tPhone: input.tPhone
       }
     })
+
     if(input.image){
       const imageCloud = await ctx.cloudinary.uploader.upload(input.image)
       await prisma.user.update({
@@ -301,6 +318,77 @@ export const userRouter = createTRPCRouter({
         }
       }
     })
+  }),
+
+  // GET - O ayda ve bir önceki ayda kayıt olmuş öğrencilerin sayısı
+  getUserCountByDate: adminProcedure.query(async ()=>{
+    const now = new Date()
+    const currentMonth = now.getMonth() + 1
+    const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1
+    const thisYear = now.getFullYear()
+    const previousYear = currentMonth === 1 ? thisYear - 1 : thisYear
+    const thisMonth = await prisma.user.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(thisYear, currentMonth - 1, 1),
+          lt: new Date(thisYear, currentMonth, 1)
+        },
+        role: "STUDENT"
+      },
+      select: {
+        userNo: true
+      }
+    })
+    const previousMonthPrisma = await prisma.user.findMany({
+      where: {
+        createdAt: {
+          lt: new Date(previousYear, previousMonth, 1)
+        },
+        role: "STUDENT"
+      },
+      select: {
+        userNo: true
+      }
+    })
+    return (
+      {
+        thisMonth: thisMonth,
+        previousMonth: previousMonthPrisma
+      }
+    )
+  }),
+
+  //GET - Bir sınıfa bağlı olan çocuklar vs olmayanlar
+  getStudentsByInAnyClass: adminProcedure.query(async ()=>{
+    const inClass = await prisma.user.findMany({
+      where: {
+        classId: {
+          not: {
+            equals: null
+          }
+        }
+      },
+      select: {
+        userNo: true
+      }
+    })
+    const notInClass = await prisma.user.findMany({
+      where: {
+        classId: {
+          equals: null
+        }
+      },
+      select: {
+        userNo: true
+      }
+    })
+
+    return (
+      {
+        notInClass: notInClass,
+        inClass: inClass
+      }
+    )
   })
 
 });

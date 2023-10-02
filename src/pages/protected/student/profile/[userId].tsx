@@ -74,9 +74,8 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
   const [fetched, setFetched] = useState<boolean>(false)
   return (
     <>
-      {currentSession.user.role === "ADMIN" ? (
       <div className='relative flex flex-col w-screen h-screen'>
-        <GenericStudentProfile form={form} >
+        <GenericStudentProfile PageProps={props} form={form}>
           <>
             {form.values.buttonSelected === "profil" ? (
           <div className='flex flex-col w-full h-full'>
@@ -101,7 +100,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
         </GenericStudentProfile>
       </div>
       
-      ) : (<div>Sa</div>)}
+
     </>
   )
 }

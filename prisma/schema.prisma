@@ -51,6 +51,7 @@ model Session {
 
 model User {
     id          String        @id @default(cuid())
+    createdAt   DateTime      @default(now())
     name        String
     userNo      String        @unique
     password    String

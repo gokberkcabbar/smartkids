@@ -129,6 +129,8 @@ const mockdata = [
   },
 ];
 
+
+
 export function HeaderBar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
@@ -163,7 +165,9 @@ export function HeaderBar() {
             <a onClick={()=>router.push("/")} className={classes.link}>
               Ana Sayfa
             </a>
-            <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
+            {session.data ? (
+              session.data.user.role === "ADMIN" ? (
+                <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
               <HoverCard.Target>
                 <a href="#" className={classes.link}>
                   <Center inline>
@@ -178,9 +182,6 @@ export function HeaderBar() {
               <HoverCard.Dropdown sx={{ overflow: 'hidden' }}>
                 <Group position="apart" px="md">
                   <Text fw={500}>Özellikler</Text>
-                  <Anchor href="#" fz="xs">
-                    View all
-                  </Anchor>
                 </Group>
 
                 <Divider
@@ -193,27 +194,17 @@ export function HeaderBar() {
                   {links}
                 </SimpleGrid>
 
-                <div className={classes.dropdownFooter}>
-                  <Group position="apart">
-                    <div>
-                      <Text fw={500} fz="sm">
-                        Get started
-                      </Text>
-                      <Text size="xs" color="dimmed">
-                        Their food sources have decreased, and their numbers
-                      </Text>
-                    </div>
-                    <Button variant="default">Get started</Button>
-                  </Group>
-                </div>
+                
               </HoverCard.Dropdown>
             </HoverCard>
-            <a href="#" className={classes.link}>
-              Learn
-            </a>
-            <a href="#" className={classes.link}>
-              Academy
-            </a>
+              ) : (
+                <a onClick={()=>router.push(`/protected/student/profile/${session.data.user.userNo}`)} className={classes.link}>
+                  Profil
+                </a>
+              )
+            ) : (
+              <Loader />
+            )}
           </Group>
 
           {session.status === "authenticated" ? (

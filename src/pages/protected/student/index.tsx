@@ -1,10 +1,16 @@
+import { AppShell } from '@mantine/core'
 import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
 import React from 'react'
+import { HeaderBar } from '~/components/HeaderBar'
 
 const StudentPage : NextPage = ({session}:any) => {
   return (
-    <div>gelecek bir şeyler</div>
+    <AppShell
+    header={<HeaderBar />}
+    >
+
+    </AppShell>
   )
 }
 
