@@ -14,7 +14,7 @@ export const ContactUs = () => {
     transition={{duration: 0.6}} className="flex [@media(min-width:768px)]:flex-row flex-col gap-2 w-full items-center justify-center">
                 <div className="flex flex-row gap-2 items-center">
                     <IconBrandWhatsapp size={32} />
-                    <Text fz='lg'>+90 541 644 59 06</Text>
+                    <Text component={Link} href={'https://wa.me/905416445906'} fz='lg'>+90 541 644 59 06</Text>
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                     <IconBrandInstagram size={32} />
