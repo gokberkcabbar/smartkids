@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ActionIcon, Button, Container, Grid, Group, Loader, Select, TextInput, rem } from '@mantine/core'
+import { ActionIcon, Box, Button, Container, Grid, Group, Loader, Select, TextInput, rem } from '@mantine/core'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
 import React, { useRef, useState } from 'react'
 import { ClassCard } from '~/components/ClassCard'
@@ -61,8 +61,12 @@ const Classes: NextPage = ({session}:any) => {
                         <TextInput width={'100%'} icon={<IconSearch size={16}/>} {...form.getInputProps('searchFilter')} />
                     </div>
                 </div>
-                <div className='flex flex-col justify-center items-center mt-24 gap-y-4'>
-                 <TableClass form={form} />
+                <div className='flex flex-col overflow-x-auto justify-center items-center mt-24 gap-y-4'>
+                 <Box sx={{overflow: 'auto'}}>
+                    <Box>
+                        <TableClass form={form} />
+                    </Box>
+                 </Box>
                 </div>
             </Container>
         </div>
