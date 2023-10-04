@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -8,6 +10,7 @@ import { Avatar, Badge, Button, Divider, Grid, Loader, Menu, Modal, PasswordInpu
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
 import {notifications} from '@mantine/notifications'
+
 
 export const ProfileTab = ({props}: {props: PageProps}) => {
   const router = useRouter()
@@ -41,6 +44,8 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
   const [atakumClasses, setAtakumClasses] = useState<React.JSX.Element[]>([])
   const [peraClasses, setPeraClasses] = useState<React.JSX.Element[]>([])
   const [openPasswordModal, setOpenPasswordModal] = useState<boolean>(false)
+  const [imgFile, setImgFile] = useState<File>()
+  const [imgFileLoading, setImgFileLoading] = useState(false)
   const [hoverImage, setHoverImage] = useState<boolean>(false)
   const form = useForm({
     initialValues: {
@@ -92,7 +97,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
   
     if (file) {
       const reader = new FileReader();
-  
+      setImgFile(file)
       reader.onloadend = (e: ProgressEvent<FileReader>) => {
         const base64Data = e.target?.result as string;
         form.setFieldValue('image', base64Data);
@@ -197,7 +202,43 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                     null
                 )}
                 <Grid.Col span={6}>
-                    <Button onClick={()=>{
+                    <Button onClick={async ()=>{
+                        if(imgFile){
+                            setImgFileLoading(true)
+                            const formData = new FormData()
+                            formData.append('file', imgFile)
+                            const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                body: formData,
+                              });
+                              if(response.ok){
+                                const data = await response.json()
+                                const filePath = data.urlCloud as string
+                                setImgFileLoading(false)
+                                updateStudentInfo({
+                                    name: form.values.name,
+                                    className: form.values.class,
+                                    userNo: form.values.userNo,
+                                    fJob: form.values.fJob,
+                                    mJob: form.values.mJob,
+                                    fName: form.values.fName,
+                                    fPhone: form.values.fPhone,
+                                    image: filePath,
+                                    mName: form.values.mName,
+                                    mPhone: form.values.mPhone,
+                                    tPhone: form.values.tPhone
+                                })
+                        }
+                        else{
+                            notifications.show({
+                                message: "Resim Yüklenemedi",
+                                color: 'red',
+                                autoClose: 2000
+                            })
+                        }
+                    }
+                    else {
+                        setImgFileLoading(false)
                         updateStudentInfo({
                             name: form.values.name,
                             className: form.values.class,
@@ -206,12 +247,12 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                             mJob: form.values.mJob,
                             fName: form.values.fName,
                             fPhone: form.values.fPhone,
-                            image: form.isDirty('image') ? form.values.image : undefined,
                             mName: form.values.mName,
                             mPhone: form.values.mPhone,
                             tPhone: form.values.tPhone
                         })
-                    }} disabled={!form.isDirty() || loadingUpdateStudentInfo}>{loadingUpdateStudentInfo ? <Loader /> : "Bilgileri Güncelle"}</Button>
+                    }
+                    }} disabled={!form.isDirty() || loadingUpdateStudentInfo}>{loadingUpdateStudentInfo || imgFileLoading ? <Loader /> : "Bilgileri Güncelle"}</Button>
                 </Grid.Col>
             </Grid>
             </div>

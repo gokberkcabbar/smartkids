@@ -254,13 +254,12 @@ export const userRouter = createTRPCRouter({
     })
 
     if(input.image){
-      const imageCloud = await ctx.cloudinary.uploader.upload(input.image)
       await prisma.user.update({
         where: {
           userNo: input.userNo
         },
         data: {
-          image: imageCloud.url
+          image: input.image
         }
       })
     }
