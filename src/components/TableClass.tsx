@@ -60,23 +60,38 @@ export const TableClass = ({
   form: UseFormReturnType<
     {
       searchFilter: string;
-      addClassModal: boolean;
-      nameClass: string;
-      location: "ATAKUM" | "PERA";
-      locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
     },
     (values: {
       searchFilter: string;
-      addClassModal: boolean;
-      nameClass: string;
-      location: "ATAKUM" | "PERA";
-      locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
     }) => {
       searchFilter: string;
-      addClassModal: boolean;
-      nameClass: string;
-      location: "ATAKUM" | "PERA";
-      locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
     }
   >;
 }) => {

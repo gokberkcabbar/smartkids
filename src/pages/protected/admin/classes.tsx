@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ActionIcon, Button, Container, Group, Loader, Select, TextInput } from '@mantine/core'
+import { ActionIcon, Button, Container, Grid, Group, Loader, Select, TextInput, rem } from '@mantine/core'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ClassCard } from '~/components/ClassCard'
 import { HeaderBar } from '~/components/HeaderBar'
 import { TabButton } from '~/components/TabButton'
@@ -15,22 +15,34 @@ import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
 import { requireAdminAuth } from '~/utils/requireAdminAuth'
 import { notifications } from '@mantine/notifications'
+import { DateInput, TimeInput } from '@mantine/dates'
+import { IconClock } from '@tabler/icons-react'
 
 const Classes: NextPage = ({session}:any) => {
-  
+
   const form = useForm<{
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
   }>({
     initialValues: {
         searchFilter: "",
         addClassModal: false,
         nameClass: "",
         location: "ATAKUM",
-        locationFilter: "tumu"
+        locationFilter: "tumu",
+        regularDay: "0",
+        regularHour: "",
+        regularMinute: 0,
+        startingMonth: null,
+        endingMonth: null,
     }
   })
   return (
@@ -80,20 +92,36 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }, (values: {
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }) => {
     searchFilter: string;
     addClassModal: boolean;
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }>}) => {
     const context = api.useContext()
+    const ref = useRef<HTMLInputElement>(null);
     const {mutate: addClass, isLoading: loadingAddClass} = api.class.addClass.useMutation({
         onSuccess: ()=>{
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -112,10 +140,11 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
             })
         }
     })
+    console.log(form.isDirty('endingMonth'), form.isDirty('startingMonth'), form.isDirty("nameClass"), form.isDirty('regularDay'), form.isDirty('regularHour'), form.values.regularHour)
     return (
         <>
-        <Modal zIndex={8} size='50%' opened={form.values.addClassModal} onClose={()=>form.setFieldValue('addClassModal', false)} title="Sınıf Ekle">
-            <div className='flex w-full justify-between items-end'>
+        <Modal zIndex={8} h='100%' size='50%' opened={form.values.addClassModal} onClose={()=>form.setFieldValue('addClassModal', false)} title="Sınıf Ekle">
+            <div className='flex w-full justify-between items-end z-[10000000000000]'>
                 <div className='md:w-1/3 w-1/2'>
                     <TextInput {...form.getInputProps('nameClass')} label="Sınıf Adı" />
                 </div>
@@ -130,14 +159,59 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
                     ]} placeholder='Şube seçiniz' {...form.getInputProps('location')}/>
                 </div>
             </div>
+            <div className='mt-32 w-full'>
+                <Grid gutter={'xl'}>
+                    <Grid.Col span={6}>
+                        <Select maxDropdownHeight={100} zIndex={500} dropdownPosition='bottom' data={[
+                            {
+                                value: "1", label: "Pazartesi"
+                            },
+                            {
+                                value: "2", label: "Salı"
+                            },
+                            {
+                                value: "3", label: "Çarşamba"
+                            },
+                            {
+                                value: "4", label: "Perşembe"
+                            },
+                            {
+                                value: "5", label: "Cuma"
+                            },
+                            {
+                                value: "6", label: "Cumartesi"
+                            },
+                            {
+                                value: "0", label: "Pazar"
+                            },
+                            
+                        ]} label="Ders Günü" {...form.getInputProps('regularDay')} />
+                    </Grid.Col>
+                    <Grid.Col span={6}>
+                        <TimeInput label="Ders Saati" ref={ref} rightSection={<ActionIcon variant="subtle" color="gray" onClick={() => ref.current?.showPicker()}>
+      <IconClock style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
+    </ActionIcon>} {...form.getInputProps('regularHour')} />
+                    </Grid.Col>
+                    <Grid.Col span={12} md={6}>
+                        <DateInput label="Sınf Başlangıç Zamanı" {...form.getInputProps('startingMonth')}/>
+                    </Grid.Col>
+                    <Grid.Col span={6} md={6}>
+                        <DateInput label="Sınıf Bitiş Günü" {...form.getInputProps('endingMonth')}/>
+                    </Grid.Col>
+                </Grid>
+            </div>
             <div className='mt-12'>
                 <Button onClick={()=>{
                   addClass({
                     location: form.values.location,
-                    name: form.values.nameClass
+                    name: form.values.nameClass,
+                    regularDay: parseInt(form.values.regularDay, 10),
+                    regularHour: parseInt(form.values.regularHour.replace(":", ""), 10),
+                    startingMonth: form.values.startingMonth as Date,
+                    endingMonth: form.values.endingMonth as Date
                 })
                   form.setFieldValue('addClassModal', false)  
-                }} disabled={form.values.nameClass === "" || loadingAddClass}>{loadingAddClass ? <Loader /> : "Oluştur"}</Button>
+                }} disabled={form.values.nameClass === "" || form.values.endingMonth === null || !form.isDirty('regularHour') || form.values.startingMonth === null || loadingAddClass}>{loadingAddClass ? <Loader /> : "Oluştur"}</Button>
             </div>
         </Modal>
     </>

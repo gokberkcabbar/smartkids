@@ -67,6 +67,9 @@ export const tasksRouter = createTRPCRouter({
                 class: {
                     id: getUserInfo?.class?.id
                 }
+            },
+            include: {
+                class: true
             }
         })
     }),

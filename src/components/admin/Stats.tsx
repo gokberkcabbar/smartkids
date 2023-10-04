@@ -20,7 +20,7 @@ interface StatsGridIconsProps {
 }
 
 
-export function Stats() {
+export const Stats = () => {
   const { classes } = useStyles();
   const {data: userMonthData, isFetched: userMonthDataFetched} = api.user.getUserCountByDate.useQuery()
   const {data: classesData, isFetched: classesDataFetched} = api.class.getAllClassesClassifiedWithLocation.useQuery()

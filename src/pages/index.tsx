@@ -68,7 +68,7 @@ export async function getServerSideProps(context: any){
   if(session.user.role === Role.STUDENT){
     return {
       redirect: {
-        destination: "/protected/student",
+        destination: `/protected/student/profile/${session.user.userNo}`,
         permanent: false
       }
     }

@@ -162,9 +162,15 @@ export function HeaderBar() {
           <MantineLogo size={30} />
 
           <Group sx={{ height: '100%' }} spacing={0} className={classes.hiddenMobile}>
-            <a onClick={()=>router.push("/")} className={classes.link}>
-              Ana Sayfa
-            </a>
+            {session.data ? session.data.user.role === "ADMIN" ? (
+              <a onClick={()=>router.push("/")} className={classes.link}>
+                Ana Sayfa
+              </a>
+            ) : (
+              null
+            ) : (
+              null
+            )}
             {session.data ? (
               session.data.user.role === "ADMIN" ? (
                 <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>

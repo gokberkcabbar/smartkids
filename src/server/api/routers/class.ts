@@ -17,11 +17,16 @@ import bcrpyt from 'bcrypt'
 import { Location } from "@prisma/client";
 import { dbLayoutType, layoutItem, layoutParser } from "~/utils/layoutParser";
 import { consecutiveCheck } from "~/utils/consecutiveCheck";
+import { Month } from "@mantine/dates";
 export const classRouter = createTRPCRouter({
     // POST - Yeni Sınıf oluştur
     addClass: adminProcedure.input(z.object({
         name: z.string(),
-        location: z.nativeEnum(Location)
+        location: z.nativeEnum(Location),
+        regularDay: z.number(),
+        regularHour: z.number(),
+        startingMonth: z.date(),
+        endingMonth: z.date()
     })).mutation(async ({input})=>{
         const checkIfClassExist = await prisma.class.findUnique({
             where: {
@@ -39,6 +44,10 @@ export const classRouter = createTRPCRouter({
             data: {
                 location: input.location,
                 name: input.name,
+                EndingMonth: input.endingMonth,
+                regularDay: input.regularDay,
+                regularHour: input.regularHour,
+                startingMonth: input.startingMonth,
             }
         })
     }),
@@ -360,6 +369,29 @@ export const classRouter = createTRPCRouter({
                 peraInfo: peraClasses
             }
         )
+    }),
+
+    //GET - SmartKids Takvimi
+    getSmartKidsCalendar: protectedProcedure.query(async ()=>{
+        const now = new Date()
+        return await prisma.class.findMany({
+            where: {
+                startingMonth: {
+                    lte: now
+                },
+                EndingMonth: {
+                    gte: now
+                }
+            },
+            orderBy: [
+                {
+                    regularDay: 'asc'
+                },
+                {
+                    regularHour: 'asc'
+                }
+            ]
+        }) 
     })
 
 })

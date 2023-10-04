@@ -4,22 +4,37 @@ import { IconPhoto, IconMessageCircle, IconSettings } from '@tabler/icons-react'
 
 export const TabButton = ({form}:{form:UseFormReturnType<{
   searchFilter: string;
-  addClassModal: boolean;
-  nameClass: string;
-  location: "ATAKUM" | "PERA"
-  locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }, (values: {
   searchFilter: string;
-  addClassModal: boolean;
-  nameClass: string;
-  location: "ATAKUM" | "PERA"
-  locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }) => {
   searchFilter: string;
-  addClassModal: boolean;
-  nameClass: string;
-  location: "ATAKUM" | "PERA"
-  locationFilter: string;
+    addClassModal: boolean;
+    nameClass: string;
+    location: "ATAKUM" | "PERA"
+    locationFilter: string;
+    regularDay: string,
+    regularHour: string,
+    regularMinute: number,
+    startingMonth: Date | null,
+    endingMonth: Date | null,
 }>}) => {
   return (
     <Tabs variant="pills" defaultValue="tumu">

@@ -366,7 +366,8 @@ export const userRouter = createTRPCRouter({
           not: {
             equals: null
           }
-        }
+        },
+        role: 'STUDENT'
       },
       select: {
         userNo: true
@@ -376,7 +377,8 @@ export const userRouter = createTRPCRouter({
       where: {
         classId: {
           equals: null
-        }
+        },
+        role: 'STUDENT'
       },
       select: {
         userNo: true

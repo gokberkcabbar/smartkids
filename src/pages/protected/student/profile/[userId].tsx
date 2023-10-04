@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
@@ -15,8 +15,11 @@ import { UseFormReturnType, useForm } from '@mantine/form'
 import { ProfileTab } from '~/components/studentsProfileGeneric/ProfileTab'
 import { OdemeTab } from '~/components/studentsProfileGeneric/OdemeTab'
 import { EgitimGrid } from '~/components/studentsProfileGeneric/EgitimGrid'
-import { Loader } from '@mantine/core'
+import { ActionIcon, Card, Container, Grid, Group, Loader, Text } from '@mantine/core'
 import { classProfilePageType } from '~/components/studentsProfileGeneric/EgitimTab'
+import { IconTrash } from '@tabler/icons-react'
+import { IconDownload } from '@tabler/icons-react'
+import Link from 'next/link'
 
 export interface PageProps {
   currentSession: Session,
@@ -46,11 +49,11 @@ export interface PageProps {
 }
 
 export type studentProfileAppShellProp = UseFormReturnType<{
-  buttonSelected: "odeme" | "profil" | "egitim";
+  buttonSelected: "odeme" | "profil" | "egitim" | "odev";
 }, (values: {
-  buttonSelected: "odeme" | "profil" | "egitim";
+  buttonSelected: "odeme" | "profil" | "egitim" | "odev";
 }) => {
-  buttonSelected: "odeme" | "profil" | "egitim";
+  buttonSelected: "odeme" | "profil" | "egitim" | "odev";
 }>
 
 const Profile : NextPage<PageProps> = (props: PageProps) => {
@@ -58,7 +61,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
   console.log(userInfo)
   console.log(currentSession)
   const form = useForm<{
-    buttonSelected: "odeme" | "profil" | "egitim"
+    buttonSelected: "odeme" | "profil" | "egitim" | "odev"
   }>({
     initialValues: {
         buttonSelected: "profil"
@@ -72,6 +75,44 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
   })
   const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
   const [fetched, setFetched] = useState<boolean>(false)
+  const [tasksHtml, setTasksHtml] = useState<React.JSX.Element[]>([])
+  const {data: getTasks, isFetched: getTasksFetched} = api.task.getTaskByUserNo.useQuery({userNo: props.userInfo.userNo as string})
+  useEffect(() => {
+    if(getTasksFetched && getTasks){
+      const now = new Date()
+      setTasksHtml(getTasks.map((val)=>(
+        <Grid.Col key={val.fileLink} span={12} md={4}>
+            <Card radius={15} p='md' >
+            <div className="flex flex-col gap-3 w-full h-full">
+              <div className="flex flex-col gap-3  w-full [@media(min-width:1024px)]:hidden">
+                <Text fz='xl'>Ödev Adı: <Text fz='lg'>{val.name}</Text></Text>
+                <Text fz='xl'>Sınıf Adı: <Text fz='lg'>{val.class?.name}</Text></Text>
+              </div>
+                <div className="flex flex-row justify-between items-center [@media(max-width:1024px)]:hidden">
+                <Text fz='xl'>Ödev Adı: <Text fz='lg'>{val.name}</Text></Text>
+                <Text fz='xl'>Sınıf Adı: <Text fz='lg'>{val.class?.name}</Text></Text>
+                </div>
+                <div className="flex flex-col gap-3  w-full [@media(min-width:1024px)]:hidden">
+                  <Text>Ödev Oluşturma Tarihi: <Text color="blue">{val.createdAt.toLocaleDateString('tr-TR')}</Text></Text>
+                  <Text>Son Teslim Tarihi: <Text color={val.deadline >= now ? "cyan" : "red"}>{val.deadline.toLocaleDateString('tr-TR')}</Text></Text>
+                </div>
+                <div className="flex flex-row justify-between items-center [@media(max-width:1024px)]:hidden">
+                <Text>Ödev Oluşturma Tarihi: <Text color="blue">{val.createdAt.toLocaleDateString('tr-TR')}</Text></Text>
+                <Text>Son Teslim Tarihi: <Text color={val.deadline >= now ? "cyan" : "red"}>{val.deadline.toLocaleDateString('tr-TR')}</Text></Text>
+                </div>
+                <Group position='right'>
+                  <ActionIcon component={Link} download href={val.fileLink} variant="light">
+                    <IconDownload size={30}/>
+                  </ActionIcon>
+                </Group>
+            </div>
+          </Card>
+          </Grid.Col>
+      )))
+    }
+  
+  }, [getTasks])
+  
   return (
     <>
       <div className='relative flex flex-col w-screen h-screen'>
@@ -85,7 +126,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
             <div className='flex flex-col w-full h-full'>
               <OdemeTab props={props}/>
             </div>
-          ) : (
+          ) : form.values.buttonSelected === "egitim" ? (
             loadingClassProfilePage ? (
               <div className='flex flex-col w-full h-full justify-center items-center'>
                 <Loader />
@@ -95,6 +136,14 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
                 <EgitimGrid fetched={fetched} setFetched={setFetched} className={classPageForm.values.className} classProfilePage={classProfilePage as classProfilePageType} />
             </div>
             )
+          ) : (
+            <div className='mx-auto w-full flex flex-col'>
+
+                <Grid>
+                  {tasksHtml}
+                </Grid>
+
+            </div>
           )}
           </>
         </GenericStudentProfile>
