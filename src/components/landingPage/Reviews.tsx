@@ -10,7 +10,7 @@ export const Reviews = () => {
       <Container id="comments" size='lg'>
       <Grid>
         <Grid.Col span={12} md={4}>
-              <Blockquote cite="- Özlem Akdemir">
+              <Blockquote cite="- Özlem A****">
                 İlker hocam kızıma ingilizce öğretmekle kalmadı. Başka bir
                 kimlik başka bakış açısı geliştirdi. Kızım artık çok daha
                 zgüvenli çok daha mutlu. İyi ki varsın Smartkids
@@ -18,13 +18,13 @@ export const Reviews = () => {
         </Grid.Col>
 
         <Grid.Col span={12} md={4}>
-              <Blockquote className="[@media(min-width:1024px)]:mt-3" cite="- Uğur Malkoç">
+              <Blockquote className="[@media(min-width:1024px)]:mt-3" cite="- Uğur M****">
               Smartkids le tanışmış olmak başımıza gelen en iyi şeylerden biri. Yiğit 6.sınıfın başında ve derdini anlatacak kadar ingilizce konusabiliyor. Teşekkürler smartkids ekibi.
               </Blockquote>
         </Grid.Col>
 
         <Grid.Col span={12} md={4}>
-              <Blockquote className="[@media(min-width:1024px)]:mt-6" cite="- Fatma Oğuzaslan">
+              <Blockquote className="[@media(min-width:1024px)]:mt-6" cite="- Fatma O****">
               Oğlumuz teacher İlker i kendine rol model belirleyerek büyüdü. Şu an gururumuz. Emeklerin için minnettarız teacher İlker
               </Blockquote>
         </Grid.Col>
