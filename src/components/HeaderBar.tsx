@@ -39,7 +39,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 import { ModeStorage } from './ModeStorage';
-
+import { useMediaQuery } from '@mantine/hooks';
 const useStyles = createStyles((theme) => ({
   
 
@@ -137,6 +137,7 @@ export function HeaderBar() {
   const { classes, theme } = useStyles();
   const session = useSession()
   const router = useRouter()
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
       <Group noWrap align="flex-start">
@@ -228,7 +229,18 @@ export function HeaderBar() {
             )
           )}
 
-          <Burger opened={drawerOpened} onClick={toggleDrawer} className={classes.hiddenDesktop} />
+          {
+            session.data?.user.role === "ADMIN" ? (
+              <Burger opened={drawerOpened} onClick={toggleDrawer} className={classes.hiddenDesktop} />
+            ) : session.data?.user.role === "STUDENT" && !smBreakpoint ? (
+              <Group>
+                <ModeStorage />
+                <Button onClick={()=>signOut({callbackUrl: "/"})} variant="default">Sign Out</Button>
+              </Group>
+            ) : (
+              null
+            )
+          }
         </Group>
       </Header>
 
