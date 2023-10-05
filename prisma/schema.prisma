@@ -106,7 +106,7 @@ model Class {
 model regularDay {
     id         String @id @default(cuid())
     regularDay Int
-    class      Class  @relation(fields: [classId], references: [id])
+    class      Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
     classId    String
 
     @@index([classId])
