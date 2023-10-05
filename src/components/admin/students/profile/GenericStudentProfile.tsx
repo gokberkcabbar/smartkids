@@ -27,7 +27,7 @@ export const GenericStudentProfile = ({PageProps, form, children}:{PageProps: Pa
         </ActionIcon>
         <Button variant={form.values.buttonSelected === "egitim" ? "filled" : "light"} fullWidth onClick={()=>form.setFieldValue('buttonSelected', "egitim")} className='hidden [@media(min-width:768px)]:block' leftIcon={<IconSchool size={24}/>}>Eğitim</Button>
         <ActionIcon variant={form.values.buttonSelected === "egitim" ? "filled" : "light"} onClick={()=>form.setFieldValue('buttonSelected', "egitim")} color='violet' className='block [@media(min-width:768px)]:hidden'>
-            <IconChecklist size={24} />
+            <IconSchool size={24} />
         </ActionIcon>
         <Button variant={form.values.buttonSelected === "odev" ? "filled" : "light"} fullWidth onClick={()=>form.setFieldValue('buttonSelected', "odev")} className='hidden [@media(min-width:768px)]:block' leftIcon={<IconChecklist size={24}/>}>Ödev</Button>
         <ActionIcon variant={form.values.buttonSelected === "odev" ? "filled" : "light"} onClick={()=>form.setFieldValue('buttonSelected', "odev")} color='violet' className='block [@media(min-width:768px)]:hidden'>
