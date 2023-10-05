@@ -40,6 +40,7 @@ import { useRouter } from 'next/router';
 import { api } from '~/utils/api';
 import { ModeStorage } from './ModeStorage';
 import { useMediaQuery } from '@mantine/hooks';
+import { Logo } from './Logo';
 const useStyles = createStyles((theme) => ({
   
 
@@ -160,7 +161,9 @@ export function HeaderBar() {
     <Box>
       <Header height={60} px="md">
         <Group position="apart" sx={{ height: '100%' }}>
-          <MantineLogo size={30} />
+          <div className='relative hover:cursor-pointer mt-[-60px] md:mt-[-65px]'>
+            <Logo />
+          </div>
 
           <Group sx={{ height: '100%' }} spacing={0} className={classes.hiddenMobile}>
             {session.data ? session.data.user.role === "ADMIN" ? (
@@ -205,9 +208,7 @@ export function HeaderBar() {
               </HoverCard.Dropdown>
             </HoverCard>
               ) : (
-                <a onClick={()=>router.push(`/protected/student/profile/${session.data.user.userNo}`)} className={classes.link}>
-                  Profil
-                </a>
+                null
               )
             ) : (
               <Loader />
