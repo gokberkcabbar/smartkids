@@ -117,7 +117,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
       }
     }
   };
-  console.log(router.query)
+  console.log(form.values.class)
   return (
     <>
         <div className='flex flex-col w-full h-full items-center'>
@@ -161,7 +161,7 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
                     {props.currentSession.user.role === "ADMIN" ? (
                         <Menu>
                         <Menu.Target>
-                            <Button variant='default'>{form.values.class}</Button>
+                            <Button {...form.getInputProps('class')} variant='default'>{form.values.class}</Button>
                         </Menu.Target>
                         <Menu.Dropdown>
                             <Menu.Label>Atakum</Menu.Label>

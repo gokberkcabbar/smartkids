@@ -105,7 +105,8 @@ export const userRouter = createTRPCRouter({
   getStudentsExcludeClass: adminProcedure.query(async()=>{
     return await prisma.user.findMany({
       where: {
-        class: null
+        class: null,
+        role: "STUDENT"
       }
     })
   }),
