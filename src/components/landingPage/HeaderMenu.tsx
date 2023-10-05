@@ -12,6 +12,7 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { Logo } from '../Logo';
 
 const links = [
   { link: 'hero', label: 'Ana Sayfa' },
@@ -145,7 +146,9 @@ export const HeaderMenu = () => {
     <>
     <Header height={60} mb={120} className='fixed top-0 left-0 right-0'>
       <Container className={classes.header}>
-        <MantineLogo size={28} />
+          <div className='relative hover:cursor-pointer mt-[-60px] md:mt-[-65px]'>
+            <Logo />
+          </div>
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>

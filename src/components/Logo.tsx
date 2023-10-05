@@ -9,13 +9,13 @@ export const Logo = () => {
   const stringOne: {
     char: string,
     color: "#FFB402" | "pink" | "#CAD536",
-    margin: "mt-2" | "m-0"
+    margin: "mt-[6px]" | "m-0"
   }[] = arrayOne.map((val, index)=>{
     let color: "#FFB402" | "pink" | "#CAD536" = "#FFB402"
-    let margin: "mt-2" | "m-0" = "m-0"
+    let margin: "mt-[6px]" | "m-0" = "m-0"
     const char: string = val
     if(index % 2 !== 0){
-        margin = "mt-2"
+        margin = "mt-[6px]"
     }
     else{
         margin = "m-0"
@@ -41,13 +41,13 @@ export const Logo = () => {
   const stringTwo: {
     char: string,
     color: "#FFB402" | "pink" | "#CAD536",
-    margin: "mt-2" | "m-0"
+    margin: "mt-[6px]" | "m-0"
   }[] = arrayTwo.map((val, index)=>{
     let color: "#FFB402" | "pink" | "#CAD536" = "#FFB402"
-    let margin: "mt-2" | "m-0" = "m-0"
+    let margin: "mt-[6px]" | "m-0" = "m-0"
     const char: string = val
     if(index === 1){
-        margin = "mt-2"
+        margin = "mt-[6px]"
     }
     else{
         margin = "m-0"
@@ -73,14 +73,14 @@ export const Logo = () => {
     <div className='absolute flex flex-col gap-1 items-center justify-center'>
         <div className='flex flex-row m-0 mt-[4px]'>
             {stringOne.map((val, index)=>(
-                <Text key={index} color={val.color} className={`m-0 text-sm md:text-base ${val.margin}`} style={lf.style}>
+                <Text key={index} color={val.color} className={`m-0 text-xs md:text-sm ${val.margin}`} style={lf.style}>
                     {val.char}
                 </Text>
             ))}
         </div>
-        <div className='flex flex-row m-0 mt-[-4px]'>
+        <div className='flex flex-row m-0'>
             {stringTwo.map((val, index)=>(
-                <Text key={index} color={val.color} className={`m-0 text-sm md:text-base ${val.margin}`} style={lf.style}>
+                <Text key={index} color={val.color} className={`m-0 text-xs md:text-sm ${val.margin}`} style={lf.style}>
                     {val.char}
                 </Text>
             ))}
