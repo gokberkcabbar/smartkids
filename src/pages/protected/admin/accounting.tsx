@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { ActionIcon, AppShell, Button, Loader, Menu, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
+import { ActionIcon, AppShell, Box, Button, Loader, Menu, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
 import { IconClearAll, IconSearch } from '@tabler/icons-react'
 import { NextPage } from 'next'
 import { Session } from 'next-auth'
@@ -12,6 +12,7 @@ import { api } from '~/utils/api'
 import { TransactionFor } from '@prisma/client'
 import { useRouter } from 'next/router'
 import { notifications } from '@mantine/notifications'
+import { useMediaQuery } from '@mantine/hooks'
 interface AccountingProps {
     currentSession: Session | null
 }
@@ -95,7 +96,8 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                                     }
                                 }).map((element)=>{
                                     return (
-                                        <Menu.Item key={element.userNo} className={`${form.values.studentNoSelected.includes(element.userNo) ? "bg-green-700/50" : ""}`} onClick={()=>{
+                                        <div key={element.userNo} style={{maxHeight: 100, overflowY: "auto"}}>
+                                            <Menu.Item className={`${form.values.studentNoSelected.includes(element.userNo) ? "bg-green-700/50" : ""}`} onClick={()=>{
                                             const arr = [...form.values.studentNoSelected]
                                             if(form.values.studentNoSelected.includes(element.userNo)){
                                                 const newArr = arr.filter((el)=>element.userNo !== el)
@@ -107,7 +109,8 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                                             }
                                         }}>
                                             {element.userNo}
-                                        </Menu.Item>
+                                            </Menu.Item>
+                                        </div>
                                     )
                                 })
                             ) : (
@@ -117,19 +120,21 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                                     }
                                 }).map((element)=>{
                                     return (
-                                        <Menu.Item key={element.name} className={`${form.values.studentNameSelected.includes(element.name) ? "bg-green-700/50" : ""}`} onClick={()=>{
-                                            const arr = [...form.values.studentNameSelected]
-                                            if(form.values.studentNameSelected.includes(element.name)){
-                                                const newArr = arr.filter((el)=>element.name !== el)
-                                                form.setFieldValue('studentNameSelected', newArr)
-                                            }
-                                            else{
-                                                const newArr = [...arr, element.name]
-                                                form.setFieldValue('studentNameSelected', newArr)
-                                            }
-                                        }}>
-                                            {element.name}
-                                        </Menu.Item>
+                                        <div key={element.name} style={{maxHeight: 100, overflowY: "auto"}}>
+                                            <Menu.Item key={element.name} className={`${form.values.studentNameSelected.includes(element.name) ? "bg-green-700/50" : ""}`} onClick={()=>{
+                                                const arr = [...form.values.studentNameSelected]
+                                                if(form.values.studentNameSelected.includes(element.name)){
+                                                    const newArr = arr.filter((el)=>element.name !== el)
+                                                    form.setFieldValue('studentNameSelected', newArr)
+                                                }
+                                                else{
+                                                    const newArr = [...arr, element.name]
+                                                    form.setFieldValue('studentNameSelected', newArr)
+                                                }
+                                            }}>
+                                                {element.name}
+                                            </Menu.Item>
+                                        </div>
                                     )
                                 })
                             )}
@@ -206,19 +211,25 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
   return (
     <AppShell
     header={<HeaderBar />}
-    p='xl'
+    className='flex max-w-screen max-h-screen overflow-y-hidden'
     >
-        <div className='flex flex-col w-full'>
+        <div className='flex flex-col w-full overflow-x-hidden overflow-y-hidden'>
             <Button w={200} onClick={()=>setNewPaymentModal(true)} variant='default' className='mt-6 mb-6'>Ödeme Oluştur</Button>
-            <Table>
-                <thead>
-                    <tr>
-                        {first2rows}
-                        {paymentRows}
-                    </tr>
-                </thead>
-                <tbody>{students}</tbody>
-            </Table>
+            <div className='flex w-full overflow-x-auto'>
+            <Box sx={{overflow: 'auto'}}>
+                <Box>
+                <Table>
+                    <thead>
+                        <tr>
+                            {first2rows}
+                            {paymentRows}
+                        </tr>
+                    </thead>
+                    <tbody>{students}</tbody>
+                </Table>
+                </Box>
+            </Box>
+            </div>
         </div>
         <NewPayment newPaymentModal={newPaymentModal} setNewPaymentModal={setNewPaymentModal} transactionForArray={transactionForArray} />
     </AppShell>
@@ -283,13 +294,13 @@ const NewPayment = ({newPaymentModal, setNewPaymentModal, transactionForArray}:{
             })
         )
      }, [transactionForArray])
-    
+     const smBreakpoint = useMediaQuery('(min-width: 768px)')
     return (
-        <Modal opened={newPaymentModal} style={{overflow: 'visible'}} onClose={()=>setNewPaymentModal(false)} size={'50%'}>
+        <Modal opened={newPaymentModal} style={{overflow: 'visible'}} onClose={()=>setNewPaymentModal(false)} size={smBreakpoint ? '50%' : "100%"}>
             <div className='flex flex-col w-full h-full'>
                 <div style={{zIndex: 300}} className='w-[200px] z-[300]'>
                 {getAllStudents ? (
-                    <Select label='Öğrenci No' zIndex={300} dropdownPosition='bottom' {...form.getInputProps('userNo')} data={getAllStudents.map((val)=>val.userNo)}/>
+                    <Select label='Öğrenci No' maxDropdownHeight={100} zIndex={300} dropdownPosition='bottom' {...form.getInputProps('userNo')} data={getAllStudents.map((val)=>val.userNo)}/>
                 ) : (
                     <Loader />
                 )}
@@ -299,7 +310,7 @@ const NewPayment = ({newPaymentModal, setNewPaymentModal, transactionForArray}:{
                         <Menu.Target>
                             <Button>{form.values.transactionTo}</Button>
                         </Menu.Target>
-                        <Menu.Dropdown style={{zIndex: 3000, position:'absolute'}} >
+                        <Menu.Dropdown style={{zIndex: 3000, position:'absolute', overflowY: "auto", height: 100}} >
                             {rows}
                         </Menu.Dropdown>
                     </Menu>

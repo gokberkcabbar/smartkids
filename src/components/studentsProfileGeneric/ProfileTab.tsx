@@ -10,6 +10,7 @@ import { Avatar, Badge, Button, Divider, Grid, Loader, Menu, Modal, PasswordInpu
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
 import {notifications} from '@mantine/notifications'
+import { useMediaQuery } from '@mantine/hooks'
 
 
 export const ProfileTab = ({props}: {props: PageProps}) => {
@@ -32,8 +33,8 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
             }
         })
     },
-    onError: (error) => {
-        const errorMessage = error.message
+    onError: (e) => {
+        const errorMessage = e.message
         notifications.show({
             color: 'red',
             message: errorMessage,
@@ -272,14 +273,27 @@ const PasswordUpdateModal = ({userNo, openPasswordModal, setOpenPasswordModal}:{
     })
     const specialCharacters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', ',', '.', '?', '"', ':', '{', '}', '|', '<', '>', '/'];
     const context = api.useContext()
+    const smBreakpoint = useMediaQuery('(min-width: 768px)')
     const {mutate: updatePassword} = api.user.updatePassword.useMutation({
         onSuccess: ()=>{
             context.user.invalidate()
-            setOpenPasswordModal(false)
+            notifications.show({
+                message: "Şifre Başarıyla Güncellendi",
+                color: "green",
+                autoClose: 1000,
+                onClose: ()=>setOpenPasswordModal(false)
+            })
+        },
+        onError: (e)=>{
+            notifications.show({
+                message: e.message,
+                color: "red",
+                autoClose: 2000
+            })
         }
     })
     return (
-        <Modal size="30%" opened={openPasswordModal} onClose={()=>{
+        <Modal size={smBreakpoint ? "30%" : "100%"} opened={openPasswordModal} onClose={()=>{
             setOpenPasswordModal(false),
             passwordForm.reset()
         }}>

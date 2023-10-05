@@ -17,6 +17,7 @@ import { requireAdminAuth } from '~/utils/requireAdminAuth'
 import { notifications } from '@mantine/notifications'
 import { DateInput, TimeInput } from '@mantine/dates'
 import { IconClock } from '@tabler/icons-react'
+import { useMediaQuery } from '@mantine/hooks'
 
 const Classes: NextPage = ({session}:any) => {
 
@@ -47,7 +48,7 @@ const Classes: NextPage = ({session}:any) => {
   })
   return (
     <>
-    <div className='relative flex flex-col h-screen w-screen'>
+    <div className='relative flex flex-col h-screen max-w-screen'>
         <HeaderBar />
         <div className='mt-14 h-full w-full'>
             <Container size="xl">
@@ -61,7 +62,7 @@ const Classes: NextPage = ({session}:any) => {
                         <TextInput width={'100%'} icon={<IconSearch size={16}/>} {...form.getInputProps('searchFilter')} />
                     </div>
                 </div>
-                <div className='flex flex-col overflow-x-auto justify-center items-center mt-24 gap-y-4'>
+                <div className='flex flex-col overflow-x-auto mt-24'>
                  <Box sx={{overflow: 'auto'}}>
                     <Box>
                         <TableClass form={form} />
@@ -145,9 +146,10 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
         }
     })
     console.log(form.isDirty('endingMonth'), form.isDirty('startingMonth'), form.isDirty("nameClass"), form.isDirty('regularDay'), form.isDirty('regularHour'), form.values.regularHour)
+    const smBreakpoint = useMediaQuery('(min-width: 768px)')
     return (
         <>
-        <Modal zIndex={8} h='100%' size='50%' opened={form.values.addClassModal} onClose={()=>form.setFieldValue('addClassModal', false)} title="Sınıf Ekle">
+        <Modal zIndex={8} h='100%' size={smBreakpoint ? '50%' : "100%"} opened={form.values.addClassModal} onClose={()=>form.setFieldValue('addClassModal', false)} title="Sınıf Ekle">
             <div className='flex w-full justify-between items-end z-[10000000000000]'>
                 <div className='md:w-1/3 w-1/2'>
                     <TextInput {...form.getInputProps('nameClass')} label="Sınıf Adı" />

@@ -229,7 +229,7 @@ export const TableClass = ({
       {isFetched ? (
         <Table
           striped
-          horizontalSpacing={smBreakpoint ? 0 : 60}
+          horizontalSpacing={60}
           highlightOnHover
           withBorder
         >
@@ -291,11 +291,11 @@ const ClassDetailModal = ({
     }
   }, [data]);
   const router = useRouter();
-
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   return (
     <>
       <Modal
-        size="50%"
+        size={smBreakpoint ? "50%" : "100%"}
         title="Sınıf Detayı"
         opened={formClassDetail.values.modalClassDetail}
         onClose={() => formClassDetail.setFieldValue("modalClassDetail", false)}
@@ -428,10 +428,11 @@ const StudentAddInClass = ({
       },
     }
   );
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   const [selected, setSelected] = useState<User[]>([]);
   return (
     <Modal
-      size="50%"
+      size={smBreakpoint ? "50%" : "100%"}
       title="Sınıfa Öğrenci Ekle"
       opened={form.values.studentAddInClass}
       onClose={() => {
@@ -565,10 +566,10 @@ const OdevModal = ({odevForm}:{odevForm: UseFormReturnType<{
       )
     }
   }, [getTask, odevForm.values.searchOdev])
-  
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   return (
     <>
-    <Modal opened={odevForm.values.isOpen} onClose={()=>odevForm.setFieldValue('isOpen', false)} size='xl' title="Ödev Ekle">
+    <Modal opened={odevForm.values.isOpen} onClose={()=>odevForm.setFieldValue('isOpen', false)} size={smBreakpoint ? "xl" : "100%"} title="Ödev Ekle">
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-row justify-between items-center p-2">
           <Text fz='lg'>Ödevler</Text>
@@ -667,12 +668,12 @@ const NewTaskModal = ({odevForm}:{odevForm: UseFormReturnType<{
       )))
     }
   }, [getClasses])
-  
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   return (
     <Modal opened={odevForm.values.isNewTaskOpen} onClose={()=>{
       odevForm.setFieldValue('isOpen', true)
       odevForm.setFieldValue('isNewTaskOpen', false)
-    }} size='xl' p='md'>
+    }} size={smBreakpoint ? "xl" : "100%"} p='md'>
       <div className="flex gap-3 flex-col w-full h-full">
         <div className="flex-row w-full justify-between items-center [@media(min-width:1024px)]:flex hidden">
           <TextInput {...odevForm.getInputProps('taskName')} label="Ödev Adı" />

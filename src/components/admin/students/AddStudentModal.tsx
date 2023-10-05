@@ -8,7 +8,7 @@ import { api } from '~/utils/api'
 import { generateRandomPassword } from '~/utils/generatePassword'
 import { AddStudentModalClassDropDownButton } from './AddStudentModalClassDropDownButton'
 import { notifications } from '@mantine/notifications'
-
+import { useMediaQuery } from '@mantine/hooks'
 
 
 export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
@@ -113,9 +113,10 @@ export const AddStudentModal = ({studentsForm}:{studentsForm:UseFormReturnType<{
     }
   }, [createUserNo])
 
+  const smBreakpoint = useMediaQuery('(min-width: 768px)')
   
   return (
-    <Modal size='50%' title='Öğrenci Ekle' opened={studentsForm.values.addStudentModal} onClose={()=>studentsForm.setFieldValue('addStudentModal', false)}>
+    <Modal size={smBreakpoint ? "50%" : "100%"} title='Öğrenci Ekle' opened={studentsForm.values.addStudentModal} onClose={()=>studentsForm.setFieldValue('addStudentModal', false)}>
         <div className='flex flex-col w-full'>
             <div className='flex flex-row justify-between items-center'>
                 <TextInput disabled {...newStudentForm.getInputProps('userNo')} className='w-1/3' label="Öğrenci No" />

@@ -9,6 +9,7 @@ import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
 import { useRouter } from 'next/router'
+import { useMediaQuery } from '@mantine/hooks'
 export const OdemeTab = ({props}:{props: PageProps}) => {
 const [rows, setRows] = useState<React.JSX.Element[]>([])
 const transactionForArray = Object.values(TransactionFor)
@@ -138,8 +139,9 @@ const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.use
         })
     }
 })
+const smBreakpoint = useMediaQuery('(min-width: 768px)')
 return (
-    <Modal zIndex={200} opened={form.values.newTransaction} onClose={()=>form.setFieldValue('newTransaction', false)} size={'50%'}>
+    <Modal zIndex={200} opened={form.values.newTransaction} onClose={()=>form.setFieldValue('newTransaction', false)} size={smBreakpoint ? '50%' : "100%"}>
         <div className='flex flex-col w-full'>
         <div className='flex flex-row w-full items-center justify-between'>
             <Menu>
