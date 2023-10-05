@@ -406,6 +406,36 @@ export const classRouter = createTRPCRouter({
                 }
             ]
         })
+    }),
+
+    // UPDATE - Sınıf ismi ve lokasyonu update et
+    updateClassNameAndLocation: adminProcedure.input(z.object({
+        currentClassName: z.string(),
+        className: z.string(),
+        location: z.nativeEnum(Location)
+    })).mutation(async ({input})=>{
+        if(input.currentClassName !== input.className){
+            const checkClassAvailable = await prisma.class.findUnique({
+                where: {
+                    name: input.className
+                }
+            })
+            if(checkClassAvailable){
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Aynı isimli sınıf oluşturulamaz"
+                })
+            }
+        }
+        return await prisma.class.update({
+            where: {
+                name: input.currentClassName
+            },
+            data: {
+                location: input.location,
+                name: input.className
+            }
+        })
     })
 
 })

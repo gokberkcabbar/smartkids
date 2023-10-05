@@ -273,10 +273,10 @@ const ClassDetailModal = ({
     }
   >;
 }) => {
+  const [className, setClassName] = useState<string | undefined>(undefined);
   const { data, isFetched } = api.class.getClassByName.useQuery({
-    name: formClassDetail.values.nameClass,
+    name: className ? className : formClassDetail.values.nameClass,
   });
-  const [className, setClassName] = useState("");
   const form = useForm({
     initialValues: {
       studentSearch: "",
@@ -290,26 +290,61 @@ const ClassDetailModal = ({
       setClassName(data.name);
     }
   }, [data]);
+  useEffect(() => {
+    if(className){
+      formClassDetail.resetDirty()
+    }
+  
+  }, [className])
+  
   const router = useRouter();
   const smBreakpoint = useMediaQuery('(min-width: 768px)')
+  const context = api.useContext()
+  const {mutate: updateClassNameAndLocation, isLoading: updateClassNameAndLocationLoading} = api.class.updateClassNameAndLocation.useMutation({
+    onSuccess: ()=>{
+      context.class.invalidate()
+      notifications.show({
+        message: "Sınıf bilgileri başarıyla birleştirildi",
+        color: "green",
+        autoClose: 2000,
+        onClose: ()=>{
+          formClassDetail.setFieldValue("modalClassDetail", false)
+          formClassDetail.reset()
+          setClassName(undefined)
+        }
+      })
+    },
+    onError: (e)=>{
+      notifications.show({
+        message: e.message,
+        color: "red",
+        autoClose: 2000
+      })
+    }
+  })
+  console.log(formClassDetail.values.nameClass)
   return (
     <>
       <Modal
         size={smBreakpoint ? "50%" : "100%"}
         title="Sınıf Detayı"
         opened={formClassDetail.values.modalClassDetail}
-        onClose={() => formClassDetail.setFieldValue("modalClassDetail", false)}
+        onClose={() => {
+          formClassDetail.setFieldValue("modalClassDetail", false)
+          formClassDetail.reset()
+          setClassName(undefined)
+        }}
       >
         <>
           {isFetched ? (
             <>
               <div className="flex w-full items-end justify-between">
                 <div className="w-1/2 md:w-1/3">
-                  <TextInput value={formClassDetail.values.nameClass} />
+                  <TextInput {...formClassDetail.getInputProps('nameClass')} />
                 </div>
                 <div className="w-1/2 md:w-1/6">
                   <Select
-                    zIndex={100}
+
                     dropdownPosition="bottom"
                     data={[
                       {
@@ -321,7 +356,6 @@ const ClassDetailModal = ({
                         label: "Pera",
                       },
                     ]}
-                    placeholder="Şube seçiniz"
                     {...formClassDetail.getInputProps("location")}
                   />
                 </div>
@@ -334,9 +368,18 @@ const ClassDetailModal = ({
                   />
                 </div>
                 <div className="flex flex-row items-center gap-3">
+                  <ActionIcon onClick={()=>{
+                    updateClassNameAndLocation({
+                      className: formClassDetail.values.nameClass,
+                      currentClassName: className as string,
+                      location: formClassDetail.values.location
+                    })
+                  }} className={`${formClassDetail.isDirty() ? "" : "hidden"}`}>
+                    {updateClassNameAndLocationLoading ? <Loader /> : <IconDeviceFloppy size={20} />}
+                  </ActionIcon>
                   <ActionIcon
                     onClick={() =>
-                      router.push(`/protected/admin/class/${className}`)
+                      router.push(`/protected/admin/class/${className as string}`)
                     }
                   >
                     <IconAppWindow size={20} />
