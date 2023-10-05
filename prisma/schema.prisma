@@ -89,18 +89,27 @@ enum Role {
 }
 
 model Class {
-    id            String     @id @default(cuid())
-    name          String     @unique
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
+    id            String       @id @default(cuid())
+    name          String       @unique
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
     user          User[]
     location      Location
     ClassPage     ClassPage?
     task          Task[]
-    regularDay    Int
+    regularDay    regularDay[]
     regularHour   Int
     startingMonth DateTime
     EndingMonth   DateTime
+}
+
+model regularDay {
+    id         String @id @default(cuid())
+    regularDay Int
+    class      Class  @relation(fields: [classId], references: [id])
+    classId    String
+
+    @@index([classId])
 }
 
 model Task {

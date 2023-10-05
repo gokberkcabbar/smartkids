@@ -8,7 +8,7 @@ export const TabButton = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -19,7 +19,7 @@ export const TabButton = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -30,7 +30,7 @@ export const TabButton = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,

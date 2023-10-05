@@ -36,13 +36,14 @@ const AdminPage: NextPage = ({ session }: any) => {
   const {data: allAvailableClass, isFetched: allAvailableClassFetched} = api.class.getSmartKidsCalendar.useQuery()
   const thisYear = now.getFullYear()
   const thisMonth = now.getMonth()
-  console.log(calendarSetting)
+  console.log(allAvailableClass)
   useEffect(() => {
     if(allAvailableClassFetched && allAvailableClass){
       const newCalendarSetting: calendarSettingType = {};
 
   allAvailableClass.forEach((classData) => {
-    const { regularDay, regularHour, name, location } = classData;
+    const { regularDay } = classData
+    const {regularHour, name, location} = classData.class
     
     // Check if the regularDay already exists in the calendarSetting
     if (!newCalendarSetting[regularDay]) {

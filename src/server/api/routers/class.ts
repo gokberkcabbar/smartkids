@@ -23,7 +23,7 @@ export const classRouter = createTRPCRouter({
     addClass: adminProcedure.input(z.object({
         name: z.string(),
         location: z.nativeEnum(Location),
-        regularDay: z.number(),
+        regularDay: z.array(z.number()),
         regularHour: z.number(),
         startingMonth: z.date(),
         endingMonth: z.date()
@@ -45,7 +45,13 @@ export const classRouter = createTRPCRouter({
                 location: input.location,
                 name: input.name,
                 EndingMonth: input.endingMonth,
-                regularDay: input.regularDay,
+                regularDay: {
+                    createMany: {
+                        data: input.regularDay.map((val)=>({
+                            regularDay: val
+                        }))
+                    }
+                },
                 regularHour: input.regularHour,
                 startingMonth: input.startingMonth,
             }
@@ -374,24 +380,32 @@ export const classRouter = createTRPCRouter({
     //GET - SmartKids Takvimi
     getSmartKidsCalendar: protectedProcedure.query(async ()=>{
         const now = new Date()
-        return await prisma.class.findMany({
+
+       return await prisma.regularDay.findMany({
             where: {
-                startingMonth: {
-                    lte: now
-                },
-                EndingMonth: {
-                    gte: now
+                class: {
+                    startingMonth: {
+                        lte: now
+                    },
+                    EndingMonth: {
+                        gte: now
+                    }
                 }
+            },
+            include: {
+                class: true
             },
             orderBy: [
                 {
                     regularDay: 'asc'
                 },
                 {
-                    regularHour: 'asc'
+                    class: {
+                        regularHour: 'asc'
+                    }
                 }
             ]
-        }) 
+        })
     })
 
 })

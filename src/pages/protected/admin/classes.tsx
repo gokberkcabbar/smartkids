@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ActionIcon, Box, Button, Container, Grid, Group, Loader, Select, TextInput, rem } from '@mantine/core'
+import { ActionIcon, Box, Button, Container, Grid, Group, Loader, MultiSelect, Select, TextInput, rem } from '@mantine/core'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
 import React, { useRef, useState } from 'react'
 import { ClassCard } from '~/components/ClassCard'
@@ -27,7 +27,7 @@ const Classes: NextPage = ({session}:any) => {
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -39,7 +39,7 @@ const Classes: NextPage = ({session}:any) => {
         nameClass: "",
         location: "ATAKUM",
         locationFilter: "tumu",
-        regularDay: "0",
+        regularDay: [],
         regularHour: "",
         regularMinute: 0,
         startingMonth: null,
@@ -97,7 +97,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -108,7 +108,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -119,7 +119,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
     nameClass: string;
     location: "ATAKUM" | "PERA"
     locationFilter: string;
-    regularDay: string,
+    regularDay: string[],
     regularHour: string,
     regularMinute: number,
     startingMonth: Date | null,
@@ -145,7 +145,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
             })
         }
     })
-    console.log(form.isDirty('endingMonth'), form.isDirty('startingMonth'), form.isDirty("nameClass"), form.isDirty('regularDay'), form.isDirty('regularHour'), form.values.regularHour)
+    console.log(form.values.regularDay)
     const smBreakpoint = useMediaQuery('(min-width: 768px)')
     return (
         <>
@@ -168,7 +168,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
             <div className='mt-32 w-full'>
                 <Grid gutter={'xl'}>
                     <Grid.Col span={6}>
-                        <Select maxDropdownHeight={100} zIndex={500} dropdownPosition='bottom' data={[
+                        <MultiSelect multiple={true} maxDropdownHeight={100} zIndex={500} dropdownPosition='bottom' data={[
                             {
                                 value: "1", label: "Pazartesi"
                             },
@@ -211,7 +211,7 @@ const ClassModal = ({form}:{form:UseFormReturnType<{
                   addClass({
                     location: form.values.location,
                     name: form.values.nameClass,
-                    regularDay: parseInt(form.values.regularDay, 10),
+                    regularDay: form.values.regularDay.map((val)=>parseInt(val, 10)),
                     regularHour: parseInt(form.values.regularHour.replace(":", ""), 10),
                     startingMonth: form.values.startingMonth as Date,
                     endingMonth: form.values.endingMonth as Date
