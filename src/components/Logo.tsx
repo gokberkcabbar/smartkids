@@ -70,7 +70,7 @@ export const Logo = () => {
     )
   }) 
   return (
-    <div className='absolute flex flex-col gap-1 items-center justify-center'>
+    <div className='absolute flex flex-col mt-[3px] md:mt-[2px] gap-1 items-center justify-center'>
         <div className='flex flex-row m-0 mt-[4px]'>
             {stringOne.map((val, index)=>(
                 <Text key={index} color={val.color} className={`m-0 text-xs md:text-sm ${val.margin}`} style={lf.style}>
