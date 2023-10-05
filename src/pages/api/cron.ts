@@ -380,7 +380,7 @@ export default async function handler(req : NextApiRequest, res : NextApiRespons
         <td style="overflow:hidden;padding:2px 3px;vertical-align:bottom"></td>
         <td style="width:202px;height:189px;overflow:hidden;padding:2px 3px;vertical-align:bottom" rowspan="9" colspan="2">
           <div style="max-height:189px">
-            <img src="http://res.cloudinary.com/dkqt9cxba/image/upload/v1694551375/lgacgd18tfglztveo4gn.png" alt="image.png" width="188" height="189">
+            <img src="https://res.cloudinary.com/dkqt9cxba/image/upload/v1696522850/s4uycqyxiw8r0frtirpr.jpg" alt="image.png" width="188" height="189">
           </div>
         </td>
         <td style="overflow:hidden;padding:2px 3px;vertical-align:bottom"></td>
