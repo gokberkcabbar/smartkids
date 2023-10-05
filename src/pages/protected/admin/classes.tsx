@@ -48,9 +48,9 @@ const Classes: NextPage = ({session}:any) => {
   })
   return (
     <>
-    <div className='relative flex flex-col h-screen max-w-screen'>
+    <div className='relative flex flex-col max-h-screen max-w-screen'>
         <HeaderBar />
-        <div className='mt-14 h-full w-full'>
+        <div className='mt-14 h-full w-full overflow-y-auto'>
             <Container size="xl">
                 <div className='flex flex-row justify-between items-center'>
                     <TabButton form={form}/>

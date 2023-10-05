@@ -213,7 +213,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
     header={<HeaderBar />}
     className='flex max-w-screen max-h-screen overflow-y-hidden'
     >
-        <div className='flex flex-col w-full overflow-x-hidden overflow-y-hidden'>
+        <div className='flex flex-col w-full overflow-x-hidden overflow-y-auto'>
             <Button w={200} onClick={()=>setNewPaymentModal(true)} variant='default' className='mt-6 mb-6'>Ödeme Oluştur</Button>
             <div className='flex w-full overflow-x-auto'>
             <Box sx={{overflow: 'auto'}}>

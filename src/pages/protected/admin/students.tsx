@@ -26,7 +26,7 @@ const Students : NextPage = ({session}:any) => {
     }
   })
   return (
-    <div className='relative flex flex-col h-screen w-screen'>
+    <div className='relative flex flex-col overflow-y-auto max-h-screen w-screen'>
         <div className='fixed top-0 left-0 right-0'>
             <HeaderBar />
             <div className='mt-14 h-full w-full'>
