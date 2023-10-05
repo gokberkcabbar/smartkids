@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ActionIcon, Box, Button, Container, Grid, Group, Loader, MultiSelect, Select, TextInput, rem } from '@mantine/core'
+import { ActionIcon, AppShell, Box, Button, Container, Grid, Group, Loader, MultiSelect, Select, TextInput, rem } from '@mantine/core'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
 import React, { useRef, useState } from 'react'
 import { ClassCard } from '~/components/ClassCard'
@@ -47,34 +47,30 @@ const Classes: NextPage = ({session}:any) => {
     }
   })
   return (
-    <>
-    <div className='relative flex flex-col max-h-screen max-w-screen'>
-        <HeaderBar />
-        <div className='mt-14 h-full w-full overflow-y-auto'>
-            <Container size="xl">
+    <AppShell header={<HeaderBar />} className='mb-[-40px]'>
+        <div className='h-full w-full flex'>
+            <Container className='w-full h-auto mt-14' size="xl">
                 <div className='flex flex-row justify-between items-center'>
                     <TabButton form={form}/>
                     
-                    <div className='flex gap-x-6 items-center justify-center flex-row relative min-w-[200px] max-w-[100px] md:max-w-[600px]'>
+                    <div className='flex gap-x-6 items-center justify-center flex-row min-w-[200px] max-w-[100px] md:max-w-[600px]'>
                         <ActionIcon onClick={()=>form.setFieldValue('addClassModal', true)} color='cyan' variant='filled'>
                             <IconPlus size={18} />
                         </ActionIcon>
                         <TextInput width={'100%'} icon={<IconSearch size={16}/>} {...form.getInputProps('searchFilter')} />
                     </div>
                 </div>
-                <div className='flex flex-col overflow-x-auto mt-24'>
+                <div style={{height: 'calc(100vh - 300px)'}} className='w-full flex flex-col mt-24'>
                  <Box sx={{overflow: 'auto'}}>
                     <Box>
-                        <TableClass form={form} />
+                    <TableClass form={form} />
                     </Box>
                  </Box>
                 </div>
             </Container>
         </div>
         <ClassModal form={form}/>
-    </div>
-    
-    </>
+    </AppShell>
   )
 }
 

@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, Container, Menu, TextInput } from '@mantine/core'
+import { ActionIcon, AppShell, Box, Button, Container, Menu, TextInput } from '@mantine/core'
 import { NextPage } from 'next'
 import { getSession } from 'next-auth/react'
 import React from 'react'
@@ -26,12 +26,11 @@ const Students : NextPage = ({session}:any) => {
     }
   })
   return (
-    <div className='relative flex flex-col overflow-y-auto max-h-screen w-screen'>
-        <div className='fixed top-0 left-0 right-0'>
-            <HeaderBar />
-            <div className='mt-14 h-full w-full'>
-            <Container size="xl">
-                <div className='flex flex-row justify-between items-center'>
+    <AppShell header={<HeaderBar />} className='h-screen w-screen flex'>
+        <div className='flex h-full w-full'>
+            <div className='h-full w-full'>
+            <Container className='w-full h-auto mt-12' size="xl">
+                <div className='flex flex-row w-full h-auto justify-between items-center'>
                         <TabButtonStudent studentsForm={studentsForm}/>
                     
                     <div className='flex gap-x-6 items-center justify-center flex-row relative min-w-[200px] max-w-[100px] md:max-w-[600px]'>
@@ -52,9 +51,9 @@ const Students : NextPage = ({session}:any) => {
                         </Menu>
                     </div>
                 </div>
-                <div className='flex flex-col justify-center w-full relative overflow-x-auto items-center mt-24 gap-y-4'>
+                <div style={{height: 'calc(100vh - 280px)'}} className='flex flex-col overflow-auto w-full mt-24 gap-y-4'>
                     <Box sx={{ overflow: "auto" }}>
-                        <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
+                        <Box>
                         <TableStudent studentsForm = {studentsForm} />
                         </Box>
                     </Box>
@@ -62,8 +61,8 @@ const Students : NextPage = ({session}:any) => {
             </Container>
         </div>
             <AddStudentModal studentsForm={studentsForm} />
-        </div>
     </div>
+    </AppShell>
   )
 }
 
