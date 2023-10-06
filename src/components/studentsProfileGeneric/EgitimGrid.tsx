@@ -92,7 +92,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                 return ({
                     classPageId: val.classPageId,
                     content: val.content,
-                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: (editActivate === parsedLayout.i && router.pathname === "/protected/admin/classes") || router.pathname !== "/protected/admin/classes" ? false : true, isResizable: router.pathname !== "/protected/admin/classes" ? false : true},
+                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: (editActivate === parsedLayout.i && router.pathname === "/protected/admin/classes") ? true : false, isResizable: router.pathname !== "/protected/admin/classes" ? false : true},
                     id: val.id
                 })
             }))

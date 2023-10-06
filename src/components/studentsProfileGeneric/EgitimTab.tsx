@@ -65,22 +65,12 @@ export const EgitimTab = (classPageForm : classPageFormTypes) => {
                 <>
                   <div className='flex flex-row p-3 justify-between items-center mt-2'>
               <Title>{classPageForm.values.className}</Title>
-              <div className='flex flex-row gap-6 items-center'>
-                <ActionIcon variant={mediaQuery === 768 ? "filled" : "subtle"} onClick={()=>setMediaQuery(768)}>
-                  <IconDeviceMobile size={30} />
-                </ActionIcon>
-                <ActionIcon variant={mediaQuery === 1024 ? "filled" : "subtle"} onClick={()=>setMediaQuery(1024)}>
-                  <IconDeviceIpadHorizontal size={30} />
-                </ActionIcon>
-                <ActionIcon variant={mediaQuery === 1184 ? "filled" : "subtle"} onClick={()=>setMediaQuery(1184)}>
-                  <IconDeviceDesktop size={30} />
-                </ActionIcon>
-              </div>
+
               <div className='flex flex-row items-center gap-4'>
                 <Button color='cyan' onClick={()=>addCard({
                   className: classPageForm.values.className
                 })} radius='lg'>{loadingAddCard ? <Loader /> : "+"}</Button>
-                <Button color='grape' radius='md'>Kaydet</Button>
+
               </div>
             </div>
               <EgitimGrid fetched={fetched} setFetched={setFetched} className={classPageForm.values.className} classProfilePage={classProfilePage as classProfilePageType}/>
