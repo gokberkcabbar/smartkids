@@ -48,12 +48,22 @@ export const CarouselSection = () => {
                 </Carousel.Slide>
                 <Carousel.Slide>
                     <div className='relative w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
-                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1695536757/lp8f7gegu9vfpyrgyfrf.png' alt='Carousel 4' style={{objectFit: 'cover'}} fill />
+                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1696626297/afh7zvh3xsaihvycaodq.jpg' alt='Carousel 4' style={{objectFit: 'cover'}} fill />
                     </div>
                 </Carousel.Slide>
                 <Carousel.Slide>
                     <div className='relative w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
-                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1695536774/srtypnyanmb2ts5ovbto.png' alt='Carousel 5' style={{objectFit: 'cover'}} fill />
+                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1696626368/fbti2lbzblo08lzvezhy.jpg' alt='Carousel 5' style={{objectFit: 'cover'}} fill />
+                    </div>
+                </Carousel.Slide>
+                <Carousel.Slide>
+                    <div className='relative w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
+                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1696626397/irueeip9st0ikbnhwwgk.jpg' alt='Carousel 5' style={{objectFit: 'cover'}} fill />
+                    </div>
+                </Carousel.Slide>
+                <Carousel.Slide>
+                    <div className='relative w-full [@media(min-width:768px)]:h-[400px] h-[250px]'>
+                        <Image className='rounded-2xl' src='https://res.cloudinary.com/dkqt9cxba/image/upload/v1696626462/mucy3hdmpqzk7ftmm60q.jpg' alt='Carousel 5' style={{objectFit: 'cover'}} fill />
                     </div>
                 </Carousel.Slide>
             </Carousel>
