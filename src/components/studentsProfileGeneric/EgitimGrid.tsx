@@ -22,6 +22,8 @@ import TextAlign from '@tiptap/extension-text-align'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
 import { useRouter } from 'next/router'
+import { IconDragDrop2 } from '@tabler/icons-react'
+import { IconDragDrop } from '@tabler/icons-react'
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
 
@@ -44,6 +46,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
   const [layout, setLayout] = useState<layoutType>()
   const [editActivate, setEditActivate] = useState("")
   const [content, setContent] = useState<{content: string, id: string}[]>([])
+  const [dragActive, setDragActive] = useState("")
   const [profilePage, setProfilePage] = useState<{
     classPageId: string;
     content: string;
@@ -92,7 +95,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                 return ({
                     classPageId: val.classPageId,
                     content: val.content,
-                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: (editActivate === parsedLayout.i && router.pathname === "/protected/admin/classes") ? true : false, isResizable: router.pathname !== "/protected/admin/classes" ? false : true},
+                    layout: {...parsedLayout, editMode: parsedLayout.i === editActivate ? true : false, isDraggable: dragActive === parsedLayout.i ? true : false, isResizable: router.pathname !== "/protected/admin/classes" ? false : true},
                     id: val.id
                 })
             }))
@@ -111,7 +114,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
         return () => {
             setFetched(false)
         }
-  }, [classProfilePage, editActivate])
+  }, [classProfilePage, editActivate, dragActive])
 
 
   useEffect(() => {
@@ -186,6 +189,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                                     return ""
                                 }
                             })
+                            setDragActive("")
                          }}>
                              <IconPencil size={20} />
                          </ActionIcon>
@@ -200,7 +204,19 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                              })} size={20} />
                          </ActionIcon>
                      </div>
-                     {val.layout.editMode ? (<RichTextEditorCard parsedContent={parsedContent} setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>) : (
+                     {val.layout.editMode ? (<>
+                     <RichTextEditorCard dragActive={dragActive} setDragActive={setDragActive} parsedContent={parsedContent} setFetched={setFetched} layout={layoutChange.find((elm)=>elm.i === val.layout.i) || {"w":4,"h":5,"x":0,"y":0,"i":"1","minW":1,"minH":1,"static":false}} className={className} setEditActivate={setEditActivate} setTextEditorState={setTextEditorState} textEditorState={textEditorState} elementNo={val.layout.i}/>
+                     <ActionIcon onClick={()=>{
+                        if(dragActive !== val.layout.i){
+                            setDragActive(val.layout.i)
+                        }
+                        else{
+                            setDragActive("")
+                        }
+                     }}>
+                        {dragActive === val.layout.i ? <IconDragDrop2 /> : <IconDragDrop />}
+                     </ActionIcon>
+                     </>) : (
                         <div ref={refArray[index]} dangerouslySetInnerHTML={{__html: parsedContent}}></div>
                      )}
                  </Card>

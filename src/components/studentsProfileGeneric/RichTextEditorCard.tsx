@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
-import {RichTextEditor} from '@mantine/tiptap'
+import {RichTextEditor, Link} from '@mantine/tiptap'
 import { JSONContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Youtube from '@tiptap/extension-youtube'
@@ -19,13 +19,14 @@ import { IconPhoto } from '@tabler/icons-react'
 
 
 
-export const RichTextEditorCard = ({parsedContent, setFetched, layout, className, elementNo, textEditorState, setTextEditorState, setEditActivate}:{parsedContent: string, setFetched: React.Dispatch<SetStateAction<boolean>>, layout: ReactGridLayout.Layout ,className: string, elementNo: string, textEditorState: string, setTextEditorState: React.Dispatch<React.SetStateAction<string>>, setEditActivate: React.Dispatch<React.SetStateAction<string>>}) => {
+export const RichTextEditorCard = ({dragActive, setDragActive, parsedContent, setFetched, layout, className, elementNo, textEditorState, setTextEditorState, setEditActivate}:{dragActive: string, setDragActive: React.Dispatch<React.SetStateAction<string>>, parsedContent: string, setFetched: React.Dispatch<SetStateAction<boolean>>, layout: ReactGridLayout.Layout ,className: string, elementNo: string, textEditorState: string, setTextEditorState: React.Dispatch<React.SetStateAction<string>>, setEditActivate: React.Dispatch<React.SetStateAction<string>>}) => {
     const editor = useEditor({
         extensions: [
             StarterKit,
             Youtube,
             Highlight,
             Image,
+            Link,
             TextAlign.configure({types: ['heading', 'paragraph']}),
         ],
         content: parsedContent || ``
@@ -144,6 +145,7 @@ export const RichTextEditorCard = ({parsedContent, setFetched, layout, className
                 layout: JSON.stringify(layout)
               })
               setEditActivate("")
+              setDragActive("")
             }
           }}>
             <IconDeviceFloppy />
