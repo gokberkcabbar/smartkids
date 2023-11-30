@@ -71,6 +71,7 @@ model User {
     accounts    Account[]
     sessions    Session[]
     classId     String?
+    lastLogin DateTime?
 
     @@index([classId])
 }

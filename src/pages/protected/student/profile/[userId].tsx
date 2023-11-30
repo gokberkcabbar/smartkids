@@ -180,7 +180,9 @@ export async function getServerSideProps(context: any){
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const trpc = appRouter.createCaller(context)
   const result = await trpc.user.getUserInfo({userNo: userId})
-
+  if(session.user.userNo === userId){
+    await trpc.user.updateLastLogin({userNo: userId})
+  }
   return {
       props: {
         currentSession: session,

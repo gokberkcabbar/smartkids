@@ -391,6 +391,21 @@ export const userRouter = createTRPCRouter({
         inClass: inClass
       }
     )
+  }),
+  //UPDATE - Kullanıcı son login güncelleme:
+
+  updateLastLogin: publicProcedure.input(z.object({
+    userNo: z.string()
+  })).mutation(async ({input})=> {
+    const date = new Date()
+    return await prisma.user.update({
+      where: {
+        userNo: input.userNo
+      },
+      data: {
+        lastLogin: date
+      }
+    })
   })
 
 });
