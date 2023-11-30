@@ -36,7 +36,9 @@ export interface layoutType {
         sm: layoutItem[];
     };
 }
-
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+   }
 
 
 export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {fetched: boolean, setFetched: React.Dispatch<SetStateAction<boolean>>, classProfilePage: classProfilePageType, className: string}) => {
@@ -139,34 +141,38 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
   
   }, [fetched, editActivate, profilePage, lgBreakpoint])
   console.log(router)
-
+  
   useEffect(() => {
-    if(!lgBreakpoint){
-        setLayout({
-            layouts: {
-                lg: profilePage.map((val, index)=>({
-                    ...val.layout,
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
-                    w: 4
-                })),
-                md: profilePage.map((val, index)=>({
-                    ...val.layout,
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
-                    w: 4
-                })),
-                sm: profilePage.map((val, index)=>({
-                    ...val.layout,
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    h: Math.round(refArray[index]!.current!.clientHeight / 30),
-                    w: 4
-                }))
-            }
+    if(!lgBreakpoint && refArray.length !== 0){
+        console.log(refArray)
+        sleep(500).then(()=> {
+            setLayout({
+                layouts: {
+                    lg: profilePage.map((val, index)=>({
+                        ...val.layout,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        h: Math.round(refArray[index]!.current!.clientHeight / 32),
+                        w: 4
+                    })),
+                    md: profilePage.map((val, index)=>({
+                        ...val.layout,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        h: Math.round(refArray[index]!.current!.clientHeight / 32),
+                        w: 4
+                    })),
+                    sm: profilePage.map((val, index)=>({
+                        ...val.layout,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        h: Math.round(refArray[index]!.current!.clientHeight / 32),
+                        w: 4
+                    }))
+                }
+            })
         })
     }
   
-  }, [refArray])
+  }, [refArray, profilePage])
+  console.log(refArray)
   
   
   return (
@@ -217,7 +223,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
                         {dragActive === val.layout.i ? <IconDragDrop2 /> : <IconDragDrop />}
                      </ActionIcon>
                      </>) : (
-                        <div ref={refArray[index]} dangerouslySetInnerHTML={{__html: parsedContent}}></div>
+                        <div ref={refArray[index]} className='relative' data-parsed dangerouslySetInnerHTML={{__html: parsedContent}}></div>
                      )}
                  </Card>
              </div>
