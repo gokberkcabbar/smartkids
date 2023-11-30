@@ -145,7 +145,7 @@ export const EgitimGrid = ({fetched, setFetched, classProfilePage, className}: {
   useEffect(() => {
     if(!lgBreakpoint && refArray.length !== 0){
         console.log(refArray)
-        sleep(500).then(()=> {
+        sleep(1000).then(()=> {
             setLayout({
                 layouts: {
                     lg: profilePage.map((val, index)=>({
