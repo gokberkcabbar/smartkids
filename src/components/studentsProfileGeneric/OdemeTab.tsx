@@ -148,7 +148,7 @@ return (
                 <Menu.Target>
                     <Button>{form.values.transactionTo}</Button>
                 </Menu.Target>
-                <Menu.Dropdown>
+                <Menu.Dropdown mah={90}>
                     {rows}
                 </Menu.Dropdown>
             </Menu>
