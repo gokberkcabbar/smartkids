@@ -122,7 +122,7 @@ export const Stats = () => {
                     quantity: userMonthData.previousMonth.length,
                     title: "Önceki aylarda kayıt olanlar"
                 },
-                diff: (userMonthData.thisMonth.length) / (userMonthData.previousMonth.length + userMonthData.thisMonth.length) * 100
+                diff: parseFloat(((userMonthData.thisMonth.length) / (userMonthData.previousMonth.length + userMonthData.thisMonth.length) * 100).toFixed(2))
             },
             classifiedStudentSection: {
                 title: "Ön Kayıt - Kayıtlı Öğrenci Sayısı",
