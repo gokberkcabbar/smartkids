@@ -80,7 +80,6 @@ useEffect(() => {
     if(changeTransactionStatus !== "" && props.userInfo.userNo && event.key === 'Enter'){
         event.preventDefault()
         await context.user.getUserInfo.invalidate()
-        setRefetchNeeded(false)
         const userNo = props.userInfo.userNo
         const transactionFor = amountChange.values.month as TransactionFor
         const amount = amountChange.values.amount
@@ -91,6 +90,7 @@ useEffect(() => {
         })
         amountChange.reset()
         setChangeTransactionStatus("")
+        setRefetchNeeded(false)
     }
   }
   document.addEventListener('keydown', handleEnter)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -59,6 +60,7 @@ export type studentProfileAppShellProp = UseFormReturnType<{
 }>
 
 const Profile : NextPage<PageProps> = (props: PageProps) => {
+
   const {currentSession, userInfo} = props
   console.log(userInfo)
   console.log(currentSession)
@@ -151,7 +153,9 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
           </div>
           ) : form.values.buttonSelected === "odeme" ? (
             <div className='flex flex-col w-full h-full'>
-              <OdemeTab refetchNeeded={refetchNeeded} setRefetchNeeded={setRefetchNeeded} props={props}/>
+              {props ? (
+                <OdemeTab refetchNeeded={refetchNeeded} setRefetchNeeded={setRefetchNeeded} props={props}/>
+              ) : null}
             </div>
           ) : form.values.buttonSelected === "egitim" ? (
             loadingClassProfilePage ? (
@@ -183,6 +187,10 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
 
 
 export async function getServerSideProps(context: any){
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=5, stale-while-revalidate=5'
+  )
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const session = await getSession(context)
   if (!session){
