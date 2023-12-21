@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Box, Button, Loader, Menu, Modal, NumberInput, Table } from '@mantine/core'
+import { Box, Button, Loader, Menu, Modal, NumberInput, Select, Table } from '@mantine/core'
 import { TransactionFor } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
@@ -109,7 +109,6 @@ useEffect(() => {
     
    setRows(
     transactionForArray.map((val)=>{
-        console.log(rows)
         return (
             <Menu.Item onClick={()=>form.setFieldValue('transactionTo', val)} key={val}>{val}</Menu.Item>
         )
@@ -144,14 +143,7 @@ return (
     <Modal zIndex={200} opened={form.values.newTransaction} onClose={()=>form.setFieldValue('newTransaction', false)} size={smBreakpoint ? '50%' : "100%"}>
         <div className='flex flex-col w-full'>
         <div className='flex flex-row w-full items-center justify-between'>
-            <Menu>
-                <Menu.Target>
-                    <Button>{form.values.transactionTo}</Button>
-                </Menu.Target>
-                <Menu.Dropdown mah={90}>
-                    {rows}
-                </Menu.Dropdown>
-            </Menu>
+            <Select dropdownPosition='flip' maxDropdownHeight={60} data={transactionForArray} value={"MATERYAL1"} onChange={(e)=>form.setFieldValue('transactionTo',e !== null ? e as TransactionFor : "MATERYAL1")} />
             <NumberInput {...form.getInputProps('amount')} />
         </div>
         <Button disabled={loadingUpdateTransaction} className='mt-10' onClick={()=>{

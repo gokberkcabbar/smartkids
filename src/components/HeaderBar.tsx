@@ -146,7 +146,7 @@ export function HeaderBar() {
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text onClick={()=>router.push(`/protected/admin/${item.link}`)} size="sm" fw={500}>
+          <Text onClick={()=>router.replace(`/protected/admin/${item.link}`)} size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">

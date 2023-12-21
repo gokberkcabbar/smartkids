@@ -300,7 +300,14 @@ const NewPayment = ({newPaymentModal, setNewPaymentModal, transactionForArray}:{
             <div className='flex flex-col w-full h-full'>
                 <div style={{zIndex: 300}} className='w-[200px] z-[300]'>
                 {getAllStudents ? (
-                    <Select label='Öğrenci No' maxDropdownHeight={100} zIndex={300} dropdownPosition='bottom' {...form.getInputProps('userNo')} data={getAllStudents.map((val)=>val.userNo)}/>
+                    <Select label='Öğrenci No' maxDropdownHeight={100} zIndex={300} dropdownPosition='bottom' {...form.getInputProps('userNo')} data={getAllStudents.map((val)=>{
+                        return (
+                            {
+                                value: val.userNo,
+                                label: val.userNo + " | " + val.name
+                            }
+                        )
+                    })}/>
                 ) : (
                     <Loader />
                 )}

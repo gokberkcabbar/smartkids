@@ -20,6 +20,7 @@ import { classProfilePageType } from '~/components/studentsProfileGeneric/Egitim
 import { IconTrash } from '@tabler/icons-react'
 import { IconDownload } from '@tabler/icons-react'
 import Link from 'next/link'
+import { ParsedUrlQuery } from 'querystring'
 
 export interface PageProps {
   currentSession: Session,
@@ -110,8 +111,20 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
           </Grid.Col>
       )))
     }
+    return () => {
+      setTasksHtml([])
+    }
   
   }, [getTasks])
+
+  const router = useRouter()
+
+  const [queryParam, setQueryParam] = useState<ParsedUrlQuery>({userId: ""})
+  console.log(queryParam, router.query)
+  useEffect(() => {
+    setQueryParam(router.query)
+  }, [router.query])
+  
   
   return (
     <>
