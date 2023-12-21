@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useEffect, useState } from 'react'
@@ -74,6 +75,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
       isOpen: false
     }
   })
+  console.log(props.userInfo.transactionInfo)
   const {data: classProfilePage, isLoading: loadingClassProfilePage} = api.class.getClasssProfilePage.useQuery({className: classPageForm.values.className}, {refetchOnWindowFocus: false})
   const [fetched, setFetched] = useState<boolean>(false)
   const [tasksHtml, setTasksHtml] = useState<React.JSX.Element[]>([])
@@ -124,6 +126,18 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
   useEffect(() => {
     setQueryParam(router.query)
   }, [router.query])
+
+  const [refetchNeeded, setRefetchNeeded] = useState(false)
+  useEffect(() => {
+    if(refetchNeeded){
+      router.replace(router.asPath)
+      console.log("aha burada")
+    }
+    return () => {
+      setRefetchNeeded(false)
+    }
+  }, [refetchNeeded])
+  
   
   
   return (
@@ -137,7 +151,7 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
           </div>
           ) : form.values.buttonSelected === "odeme" ? (
             <div className='flex flex-col w-full h-full'>
-              <OdemeTab props={props}/>
+              <OdemeTab refetchNeeded={refetchNeeded} setRefetchNeeded={setRefetchNeeded} props={props}/>
             </div>
           ) : form.values.buttonSelected === "egitim" ? (
             loadingClassProfilePage ? (
@@ -193,6 +207,7 @@ export async function getServerSideProps(context: any){
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const trpc = appRouter.createCaller(context)
   const result = await trpc.user.getUserInfo({userNo: userId})
+  console.log(result)
   if(session.user.userNo === userId){
     await trpc.user.updateLastLogin({userNo: userId})
   }

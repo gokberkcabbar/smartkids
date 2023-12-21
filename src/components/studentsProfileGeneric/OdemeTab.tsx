@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Box, Button, Loader, Menu, Modal, NumberInput, Select, Table } from '@mantine/core'
 import { TransactionFor } from '@prisma/client'
-import React, { useEffect, useState } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 import { PageProps } from '~/pages/protected/student/profile/[userId]'
 import { UseFormReturnType, useForm } from '@mantine/form'
 import { api } from '~/utils/api'
 import { notifications } from '@mantine/notifications'
 import { useRouter } from 'next/router'
 import { useMediaQuery } from '@mantine/hooks'
-export const OdemeTab = ({props}:{props: PageProps}) => {
+export const OdemeTab = ({props, refetchNeeded, setRefetchNeeded}:{refetchNeeded: boolean, setRefetchNeeded: React.Dispatch<SetStateAction<boolean>>, props: PageProps}) => {
 const [rows, setRows] = useState<React.JSX.Element[]>([])
 const transactionForArray = Object.values(TransactionFor)
 const form = useForm<{
@@ -25,36 +26,154 @@ const form = useForm<{
     }
 })
 
+const [changeTransactionStatus, setChangeTransactionStatus] = useState("")
+const amountChange = useForm({
+    initialValues: {
+        amount: 0,
+        month: "MATERYAL1"
+    }
+})
+
+useEffect(() => {
+  const keyDownHandler = (event: KeyboardEvent) => {
+     if (event.key === 'Escape') {
+       event.preventDefault();
+       setChangeTransactionStatus("");
+       amountChange.reset()
+     }
+   };
+
+   document.addEventListener('keydown', keyDownHandler);
+
+  return () => {
+    document.removeEventListener('keydown', keyDownHandler);
+  }
+}, [])
+
+const context = api.useContext()
+const router = useRouter()
+
+const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
+    onSuccess: ()=>{
+        setRefetchNeeded(true)
+        notifications.show({
+            message: 'Ödeme başarıyla eklendi',
+            color:'green',
+            autoClose: 1000,
+            onClose: ()=>{
+                form.setFieldValue('newTransaction', false)
+                
+            }
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
+    }
+})
+
+useEffect(() => {
+  const handleEnter = async (event: KeyboardEvent) => {
+    if(changeTransactionStatus !== "" && props.userInfo.userNo && event.key === 'Enter'){
+        event.preventDefault()
+        await context.user.getUserInfo.invalidate()
+        setRefetchNeeded(false)
+        const userNo = props.userInfo.userNo
+        const transactionFor = amountChange.values.month as TransactionFor
+        const amount = amountChange.values.amount
+        updateTransaction({
+            amount: amount,
+            transactionFor: transactionFor,
+            userNo: userNo
+        })
+        amountChange.reset()
+        setChangeTransactionStatus("")
+    }
+  }
+  document.addEventListener('keydown', handleEnter)
+
+  return () => {
+    document.removeEventListener('keydown', handleEnter)
+  }
+}, [changeTransactionStatus, amountChange.values])
+
+
+
+
 useEffect(() => {
   if(transactionForArray){
     setRows(transactionForArray.map((val)=>{
+        
         return(
-        <td key={val}>
-            {props.userInfo.transactionInfo?.map((val2)=>{
-                if (val2.transactionFor === val){
-                    if (val2.amount){
-                        return val2.amount.toString() + " ₺"
+        <td style={{zIndex: 1000}} key={val}>
+            {props.currentSession.user.role === "ADMIN" ? (
+                props.userInfo.transactionInfo?.map((val3)=>val3.transactionFor).includes(val) ? props.userInfo.transactionInfo.map((val2)=>{
+                    if (val2.transactionFor === val){
+                        
+                        if (val2.transactionFor === changeTransactionStatus){
+                            return (
+                                <NumberInput key={val2.id} {...amountChange.getInputProps('amount')} />
+                            ) 
+                        }
+                        else {
+                            return (
+                                <Button key={val2.id} style={{width: '100%'}} variant='subtle' onClick={()=>{
+                                    amountChange.setFieldValue('month', val2.transactionFor)
+                                    amountChange.setFieldValue('amount', val2.amount ? val2.amount : 0)
+                                    setChangeTransactionStatus(val2.transactionFor)
+                                }}>{val2.amount ? val2.amount.toString() + " ₺" : null}</Button>
+                            )
+                        }
                     }
-                    return "0 ₺"
-                }
-                return null
-            })}
+                    else {
+                        <Button style={{width: '100%'}} key={val2.id} variant='subtle' onClick={()=>{
+                            amountChange.setFieldValue('month', val)
+                            amountChange.setFieldValue('amount', 0)
+                            setChangeTransactionStatus(val2.transactionFor)
+                        }}>{null}</Button>
+                    }
+                }) : (
+                    <>
+                    {
+                        changeTransactionStatus === val ? <NumberInput {...amountChange.getInputProps('amount')} /> : (
+                            <Button style={{width: '100%'}} key={val} variant='default' onClick={()=>{
+                            amountChange.setFieldValue('month', val)
+                            amountChange.setFieldValue('amount', 0)
+                            setChangeTransactionStatus(val)
+                    }}>{null}</Button>
+                        )
+                    }
+                    </>
+                    
+                )
+            ) : (
+                    <td key={val}>
+                        {props.userInfo.transactionInfo?.map((val2)=>{
+                            if (val2.transactionFor === val){
+                                if (val2.amount){
+                                    return val2.amount.toString() + " ₺"
+                                }
+                                return "0 ₺"
+                            }
+                            return null
+                        })}
+                    </td>
+                
+            )}
         </td>
     )}))
   }
 
-}, [transactionForArray])
+}, [transactionForArray, JSON.stringify(props.userInfo.transactionInfo)])
 
   
   return (
     <>
     <Box sx={{ overflow: "auto" }}>
         <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
-            {props.currentSession.user.role === "ADMIN" ? (
-                <Button onClick={()=>form.setFieldValue('newTransaction', true)} className='mt-6 mb-4' variant='default'>Ödeme Ekle</Button>
-            ) : (
-                null
-            )}
             <Table striped horizontalSpacing={16} highlightOnHover withBorder>
             <thead>
                 <tr>
@@ -86,74 +205,7 @@ useEffect(() => {
             </Table>
         </Box>
     </Box>
-    <NewTransactionModal form={form} transactionForArray={transactionForArray} userNo={props.userInfo.userNo!} />
+
     </>
   )
-}
-
-const NewTransactionModal = ({form, transactionForArray, userNo}:{form: UseFormReturnType<{
-    transactionTo: TransactionFor;
-    amount: number;
-    newTransaction: boolean;
-}, (values: {
-    transactionTo: TransactionFor;
-    amount: number;
-    newTransaction: boolean;
-}) => {
-    transactionTo: TransactionFor;
-    amount: number;
-    newTransaction: boolean;
-}>, transactionForArray: ("MATERYAL1" | "MATERYAL2" | "OCAK" | "SUBAT" | "MART" | "NISAN" | "MAYIS" | "HAZIRAN" | "TEMMUZ" | "AGUSTOS" | "EYLUL" | "EKIM" | "KASIM" | "ARALIK")[], userNo: string}) => {
-    const [rows, setRows] = useState<React.JSX.Element[]>([])
-useEffect(() => {
-    
-   setRows(
-    transactionForArray.map((val)=>{
-        return (
-            <Menu.Item onClick={()=>form.setFieldValue('transactionTo', val)} key={val}>{val}</Menu.Item>
-        )
-       })
-   )
-}, [transactionForArray])
-const context = api.useContext()
-const router = useRouter()
-const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
-    onSuccess: ()=>{
-        context.user.invalidate()
-        notifications.show({
-            message: 'Ödeme başarıyla eklendi',
-            color:'green',
-            autoClose: 1000,
-            onClose: ()=>{
-                form.setFieldValue('newTransaction', false)
-                router.reload()
-            }
-        })
-    },
-    onError: (error)=>{
-        notifications.show({
-            message: error.message,
-            color: 'red',
-            autoClose: 2000
-        })
-    }
-})
-const smBreakpoint = useMediaQuery('(min-width: 768px)')
-return (
-    <Modal zIndex={200} opened={form.values.newTransaction} onClose={()=>form.setFieldValue('newTransaction', false)} size={smBreakpoint ? '50%' : "100%"}>
-        <div className='flex flex-col w-full'>
-        <div className='flex flex-row w-full items-center justify-between'>
-            <Select dropdownPosition='flip' maxDropdownHeight={60} data={transactionForArray} value={"MATERYAL1"} onChange={(e)=>form.setFieldValue('transactionTo',e !== null ? e as TransactionFor : "MATERYAL1")} />
-            <NumberInput {...form.getInputProps('amount')} />
-        </div>
-        <Button disabled={loadingUpdateTransaction} className='mt-10' onClick={()=>{
-            updateTransaction({
-                amount: form.values.amount,
-                transactionFor: form.values.transactionTo,
-                userNo: userNo
-            })
-        }} color='cyan'>{loadingUpdateTransaction ? <Loader /> : "Ödemeyi Oluştur"}</Button>
-        </div>
-    </Modal>
-)
 }
