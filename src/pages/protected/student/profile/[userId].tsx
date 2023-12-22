@@ -43,7 +43,6 @@ export interface PageProps {
           transactionInfo: (GetResult<{
             id: string;
             transactionFor: TransactionFor;
-            paid: boolean;
             amount: number | null;
             userId: string;
         // eslint-disable-next-line @typescript-eslint/ban-types
@@ -187,10 +186,6 @@ const Profile : NextPage<PageProps> = (props: PageProps) => {
 
 
 export async function getServerSideProps(context: any){
-  context.res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=5, stale-while-revalidate=5'
-  )
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const session = await getSession(context)
   if (!session){

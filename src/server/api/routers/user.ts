@@ -264,6 +264,32 @@ export const userRouter = createTRPCRouter({
         }
       })
     }
+
+    const userInfoo = await prisma.user.findUnique({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        class: true,
+        transaction: true
+      }
+    })
+    return {
+      name: userInfoo?.name,
+      userNo: userInfoo?.userNo,
+      class: userInfoo?.class?.name,
+      fName: userInfoo?.fName,
+      fPhone: userInfoo?.fPhone,
+      mName: userInfoo?.mName,
+      mPhone: userInfoo?.mPhone,
+      tPhone: userInfoo?.tPhone,
+      fJob: userInfoo?.fJob,
+      mJob: userInfoo?.mJob,
+      image: userInfoo?.image,
+      age: userInfoo?.age,
+      schoolClass: userInfoo?.schoolClass,
+      transactionInfo: userInfoo?.transaction
+    }
   }),
 
   //UPDATE - Ödeme alma
@@ -290,7 +316,7 @@ export const userRouter = createTRPCRouter({
       }
     })
     if(transactionExist){
-      return await prisma.transaction.update({
+      await prisma.transaction.update({
         where: {
           transactionFor_userId: {
             transactionFor: input.transactionFor,
@@ -301,8 +327,36 @@ export const userRouter = createTRPCRouter({
           amount: input.amount
         }
       })
+      const userInfoo = await prisma.user.findUnique({
+        where: {
+          id: userId
+        },
+        include: {
+          class: true,
+          transaction: true
+        }
+      })
+      
+      return {
+
+          age: userInfoo?.age,
+          name: userInfoo?.name,
+          image: userInfoo?.image,
+          userNo: userInfoo?.userNo,
+          classInfo: userInfoo?.class?.name ? userInfoo?.class?.name : "Ön Kayıt" ,
+          fName: userInfoo?.fName,
+          fJob: userInfoo?.fJob,
+          fPhone: userInfoo?.fPhone,
+          mName: userInfoo?.mName,
+          mJob: userInfoo?.mJob,
+          mPhone: userInfoo?.mPhone,
+          tPhone: userInfoo?.mPhone,
+          schoolClass: userInfoo?.schoolClass,
+          transactionInfo: userInfoo?.transaction
+
+      }
     }
-    return await prisma.user.update({
+    await prisma.user.update({
       where: {
         userNo: input.userNo
       },
@@ -318,6 +372,31 @@ export const userRouter = createTRPCRouter({
         }
       }
     })
+    const userInfoo = await prisma.user.findUnique({
+      where: {
+        userNo: input.userNo
+      },
+      include: {
+        class: true,
+        transaction: true
+      }
+    })
+    return {
+        age: userInfoo?.age,
+        name: userInfoo?.name,
+        image: userInfoo?.image,
+        userNo: userInfoo?.userNo,
+        classInfo: userInfoo?.class?.name ? userInfoo?.class?.name : "Ön Kayıt" ,
+        fName: userInfoo?.fName,
+        fJob: userInfoo?.fJob,
+        fPhone: userInfoo?.fPhone,
+        mName: userInfoo?.mName,
+        mJob: userInfoo?.mJob,
+        mPhone: userInfoo?.mPhone,
+        tPhone: userInfoo?.mPhone,
+        schoolClass: userInfoo?.schoolClass,
+        transactionInfo: userInfoo?.transaction
+    }
   }),
 
   // GET - O ayda ve bir önceki ayda kayıt olmuş öğrencilerin sayısı

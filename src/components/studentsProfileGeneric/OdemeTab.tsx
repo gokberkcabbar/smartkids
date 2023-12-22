@@ -25,7 +25,7 @@ const form = useForm<{
         newTransaction: false
     }
 })
-
+const [virtualProps, setVirtualProps] = useState(props)
 const [changeTransactionStatus, setChangeTransactionStatus] = useState("")
 const amountChange = useForm({
     initialValues: {
@@ -53,9 +53,15 @@ useEffect(() => {
 const context = api.useContext()
 const router = useRouter()
 
-const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
-    onSuccess: ()=>{
-        setRefetchNeeded(true)
+const {mutate: updateTransaction, isLoading: loadingUpdateTransaction, isSuccess: updateTransactionSuccess, data: newProps} = api.user.updateTransaction.useMutation({
+    onSuccess: (data)=>{
+        setVirtualProps((prev)=>({
+            currentSession: prev.currentSession,
+            userInfo: {
+                ...prev.userInfo,
+                transactionInfo: data.transactionInfo
+            }
+        }))
         notifications.show({
             message: 'Ödeme başarıyla eklendi',
             color:'green',
@@ -102,15 +108,14 @@ useEffect(() => {
 
 
 
-
 useEffect(() => {
   if(transactionForArray){
     setRows(transactionForArray.map((val)=>{
         
         return(
         <td style={{zIndex: 1000}} key={val}>
-            {props.currentSession.user.role === "ADMIN" ? (
-                props.userInfo.transactionInfo?.map((val3)=>val3.transactionFor).includes(val) ? props.userInfo.transactionInfo.map((val2)=>{
+            {virtualProps.currentSession.user.role === "ADMIN" ? (
+                virtualProps.userInfo.transactionInfo?.map((val3)=>val3.transactionFor).includes(val) ? virtualProps.userInfo.transactionInfo.map((val2)=>{
                     if (val2.transactionFor === val){
                         
                         if (val2.transactionFor === changeTransactionStatus){
@@ -151,7 +156,7 @@ useEffect(() => {
                 )
             ) : (
                     <td key={val}>
-                        {props.userInfo.transactionInfo?.map((val2)=>{
+                        {virtualProps.userInfo.transactionInfo?.map((val2)=>{
                             if (val2.transactionFor === val){
                                 if (val2.amount){
                                     return val2.amount.toString() + " ₺"
@@ -167,7 +172,7 @@ useEffect(() => {
     )}))
   }
 
-}, [transactionForArray, JSON.stringify(props.userInfo.transactionInfo)])
+}, [transactionForArray, JSON.stringify(virtualProps.userInfo.transactionInfo)])
 
   
   return (

@@ -21,16 +21,33 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
     refetchOnWindowFocus: false
   })
   const {mutate: updateStudentInfo, isLoading: loadingUpdateStudentInfo} = api.user.updateStudentInfo.useMutation({
-    onSuccess: ()=>{
+    onSuccess: (data)=>{
         context.user.invalidate()
         context.class.invalidate()
+        setVirtualProps((prev)=>({
+            currentSession: prev.currentSession,
+            userInfo: {
+                age: data.age,
+                classInfo: data.class,
+                fJob: data.fJob,
+                fName: data.fName,
+                fPhone: data.fPhone,
+                image: data.image,
+                mJob: data.mJob,
+                mName: data.mName,
+                mPhone: data.mPhone,
+                name: data.name!,
+                schoolClass: data.schoolClass,
+                tPhone: data.tPhone,
+                transactionInfo: data.transactionInfo,
+                userNo: data.userNo
+            }
+
+        }))
         notifications.show({
             message: "Kullanıcı bilgileri güncellendi",
             color: 'green',
             autoClose: 2000,
-            onClose: ()=>{
-                router.reload()
-            }
         })
     },
     onError: (e) => {
@@ -44,25 +61,27 @@ export const ProfileTab = ({props}: {props: PageProps}) => {
   })
   const [atakumClasses, setAtakumClasses] = useState<React.JSX.Element[]>([])
   const [peraClasses, setPeraClasses] = useState<React.JSX.Element[]>([])
+  const [virtualProps, setVirtualProps] = useState(props)
   const [openPasswordModal, setOpenPasswordModal] = useState<boolean>(false)
   const [imgFile, setImgFile] = useState<File>()
   const [imgFileLoading, setImgFileLoading] = useState(false)
   const [hoverImage, setHoverImage] = useState<boolean>(false)
   const form = useForm({
     initialValues: {
-        name: props.userInfo.name,
-        userNo: props.userInfo.userNo!,
-        class: props.userInfo.classInfo,
-        fName: props.userInfo.fName,
-        fPhone: props.userInfo.fPhone,
-        mName: props.userInfo.mName,
-        mPhone: props.userInfo.mPhone,
-        tPhone: props.userInfo.tPhone,
-        fJob: props.userInfo.fJob,
-        mJob: props.userInfo.mJob,
-        image: props.userInfo.image
+        name: virtualProps.userInfo.name,
+        userNo: virtualProps.userInfo.userNo!,
+        class: virtualProps.userInfo.classInfo,
+        fName: virtualProps.userInfo.fName,
+        fPhone: virtualProps.userInfo.fPhone,
+        mName: virtualProps.userInfo.mName,
+        mPhone: virtualProps.userInfo.mPhone,
+        tPhone: virtualProps.userInfo.tPhone,
+        fJob: virtualProps.userInfo.fJob,
+        mJob: virtualProps.userInfo.mJob,
+        image: virtualProps.userInfo.image
     }
   })
+  console.log(form.values)
   useEffect(() => {
     if(classes){
         setAtakumClasses(classes.filter((val)=>{
