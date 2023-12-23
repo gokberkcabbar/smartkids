@@ -101,6 +101,8 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
   const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
     onSuccess: ()=>{
         context.user.invalidate()
+        amountChange.reset()
+        setChangeTransactionStatus("")
         notifications.show({
             message: 'Ödeme başarıyla eklendi',
             color:'green',
@@ -132,8 +134,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
               transactionFor: transactionFor,
               userNo: userNo
           })
-          amountChange.reset()
-          setChangeTransactionStatus("")
+
       }
     }
     document.addEventListener('keydown', handleEnter)
