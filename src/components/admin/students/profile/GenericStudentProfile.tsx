@@ -55,7 +55,7 @@ export const GenericStudentProfile = ({PageProps, form, children}:{PageProps: Pa
         main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
       })}
       padding='md'
-      header={<HeaderBar />}
+      header={<HeaderBar form={form}/>}
     >
         {children}
     </AppShell>

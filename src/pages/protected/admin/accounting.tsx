@@ -24,6 +24,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
   const first2 = ["Ogrenci No", "Ogrenci Adı Soyadı"]
   const [first2rows, setFirst2rows] = useState<React.JSX.Element[]>([])
   const [paymentRows, setPaymentRows] = useState<React.JSX.Element[]>([])
+  const context = api.useContext()
   const [students, setStudents] = useState<React.JSX.Element[]>([])
   const [newPaymentModal, setNewPaymentModal] = useState<boolean>(false)
   const form = useForm<{
@@ -71,6 +72,78 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
         }
     }
   })
+
+  const [changeTransactionStatus, setChangeTransactionStatus] = useState("")
+  const amountChange = useForm({
+    initialValues: {
+        amount: 0,
+        month: "MATERYAL1",
+        userNo: ""
+    }
+  })
+
+  useEffect(() => {
+    const keyDownHandler = (event: KeyboardEvent) => {
+       if (event.key === 'Escape') {
+         event.preventDefault();
+         setChangeTransactionStatus("");
+         amountChange.reset()
+       }
+     };
+  
+     document.addEventListener('keydown', keyDownHandler);
+  
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    }
+  }, [])
+
+  const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
+    onSuccess: ()=>{
+        context.user.invalidate()
+        notifications.show({
+            message: 'Ödeme başarıyla eklendi',
+            color:'green',
+            autoClose: 1000,
+            onClose: ()=>{
+                setNewPaymentModal(false)
+            }
+        })
+    },
+    onError: (error)=>{
+        notifications.show({
+            message: error.message,
+            color: 'red',
+            autoClose: 2000
+        })
+    }
+})
+
+
+  useEffect(() => {
+    const handleEnter = (event: KeyboardEvent) => {
+      if(changeTransactionStatus !== "" && amountChange.values.userNo.length !== 0 && event.key === 'Enter'){
+          event.preventDefault()
+          const userNo = amountChange.values.userNo
+          const transactionFor = amountChange.values.month as TransactionFor
+          const amount = amountChange.values.amount
+          updateTransaction({
+              amount: amount,
+              transactionFor: transactionFor,
+              userNo: userNo
+          })
+          amountChange.reset()
+          setChangeTransactionStatus("")
+      }
+    }
+    document.addEventListener('keydown', handleEnter)
+  
+    return () => {
+      document.removeEventListener('keydown', handleEnter)
+    }
+  }, [changeTransactionStatus, amountChange.values])
+
+
   useEffect(() => {
     if(getAllStudents){
         setFirst2rows(first2.map((val)=>{
@@ -185,18 +258,66 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                 <tr key={val.userNo}>
                     <td>{val.userNo}</td>
                     <td>{val.name}</td>
-                    {transactionForArray.map((element)=>{
-                        return (
-                            <td key={element}>
-                                {val.transaction.map((val2)=>{
-                                    if(val2.transactionFor === element){
-                                        if(val2.amount){
-                                            return val2.amount.toString() + " ₺"
+                    {transactionForArray.map((transactionFor)=>{
+                        return(
+                            <td style={{zIndex: 1000}} key={transactionFor}>
+                                {props.currentSession?.user.role === "ADMIN" ? (
+                                    val.transaction.map((userTransaction)=>userTransaction.transactionFor).includes(transactionFor) ? val.transaction.map((userTransaction)=>{
+                                        if (userTransaction.transactionFor === transactionFor){
+                                            
+                                            if (userTransaction.transactionFor === changeTransactionStatus && amountChange.values.userNo === val.userNo){
+                                                return (
+                                                    <NumberInput key={userTransaction.id} {...amountChange.getInputProps('amount')} />
+                                                ) 
+                                            }
+                                            else {
+                                                return (
+                                                    <Button key={userTransaction.id} style={{width: '100%'}} variant='subtle' onClick={()=>{
+                                                        amountChange.setFieldValue('month', userTransaction.transactionFor)
+                                                        amountChange.setFieldValue('amount', userTransaction.amount ? userTransaction.amount : 0)
+                                                        amountChange.setFieldValue('userNo', val.userNo)
+                                                        setChangeTransactionStatus(userTransaction.transactionFor)
+                                                    }}>{userTransaction.amount ? userTransaction.amount.toString() + " ₺" : null}</Button>
+                                                )
+                                            }
                                         }
-                                        return "0 ₺"
-                                    }
-                                    return null
-                                })}
+                                        else {
+                                            <Button style={{width: '100%'}} key={userTransaction.id} variant='subtle' onClick={()=>{
+                                                amountChange.setFieldValue('month', transactionFor)
+                                                amountChange.setFieldValue('amount', 0)
+                                                amountChange.setFieldValue('userNo', val.userNo)
+                                                setChangeTransactionStatus(userTransaction.transactionFor)
+                                            }}>{null}</Button>
+                                        }
+                                    }) : (
+                                        <>
+                                        {
+                                            (changeTransactionStatus === transactionFor && amountChange.values.userNo === val.userNo) ? <NumberInput {...amountChange.getInputProps('amount')} /> : (
+                                                <Button style={{width: '100%'}} key={transactionFor} variant='default' onClick={()=>{
+                                                amountChange.setFieldValue('month', transactionFor)
+                                                amountChange.setFieldValue('amount', 0)
+                                                amountChange.setFieldValue('userNo', val.userNo)
+                                                setChangeTransactionStatus(transactionFor)
+                                        }}>{null}</Button>
+                                            )
+                                        }
+                                        </>
+                                        
+                                    )
+                                ) : (
+                                        <td key={transactionFor}>
+                                            {val.transaction.map((userTransaction)=>{
+                                                if (userTransaction.transactionFor === transactionFor){
+                                                    if (userTransaction.amount){
+                                                        return userTransaction.amount.toString() + " ₺"
+                                                    }
+                                                    return "0 ₺"
+                                                }
+                                                return null
+                                            })}
+                                        </td>
+                                    
+                                )}
                             </td>
                         )
                     })}
@@ -205,16 +326,15 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
         }))
     }
 
-    console.log(form.values.studentNoSelected)
-  }, [getAllStudents, form.values.studentNameSelected,form.values.studentNoSelected])
-  
+
+  }, [getAllStudents, form.values.studentNameSelected,form.values.studentNoSelected, changeTransactionStatus])
+  console.log(amountChange.values)
   return (
     <AppShell
     header={<HeaderBar />}
     className='flex w-screen h-screen'
     >
         <div className='flex flex-col w-full h-full'>
-            <Button w={200} onClick={()=>setNewPaymentModal(true)} variant='default' className='mt-6 mb-6'>Ödeme Oluştur</Button>
             <div className='flex w-full h-full overflow-auto'>
             <Box sx={{overflow: 'auto'}}>
                 <Box>
@@ -231,7 +351,6 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
             </Box>
             </div>
         </div>
-        <NewPayment newPaymentModal={newPaymentModal} setNewPaymentModal={setNewPaymentModal} transactionForArray={transactionForArray} />
     </AppShell>
   )
 }
@@ -247,90 +366,4 @@ export async function getServerSideProps(context: any){
             props: {currentSession: session}
         }
     })
-}
-
-const NewPayment = ({newPaymentModal, setNewPaymentModal, transactionForArray}:{newPaymentModal: boolean, setNewPaymentModal: React.Dispatch<SetStateAction<boolean>>, transactionForArray: ("MATERYAL1" | "MATERYAL2" | "OCAK" | "SUBAT" | "MART" | "NISAN" | "MAYIS" | "HAZIRAN" | "TEMMUZ" | "AGUSTOS" | "EYLUL" | "EKIM" | "KASIM" | "ARALIK")[]}) => {
-    const context = api.useContext()
-    const router = useRouter()
-    const form = useForm<{
-        userNo: string,
-        transactionTo: TransactionFor,
-        amount: number
-    }>({
-        initialValues: {
-            userNo: "",
-            transactionTo: "MATERYAL1",
-            amount: 0
-        }
-    })
-    const {data:getAllStudents} = api.user.getAllStudents.useQuery(undefined, {refetchOnWindowFocus: false})
-    const {mutate: updateTransaction, isLoading: loadingUpdateTransaction} = api.user.updateTransaction.useMutation({
-        onSuccess: ()=>{
-            context.user.invalidate()
-            notifications.show({
-                message: 'Ödeme başarıyla eklendi',
-                color:'green',
-                autoClose: 1000,
-                onClose: ()=>{
-                    setNewPaymentModal(false)
-                }
-            })
-        },
-        onError: (error)=>{
-            notifications.show({
-                message: error.message,
-                color: 'red',
-                autoClose: 2000
-            })
-        }
-    })
-    const [rows, setRows] = useState<React.JSX.Element[]>([])
-    useEffect(() => {
-        setRows(
-         transactionForArray.map((val)=>{
-             return (
-                 <Menu.Item onClick={()=>form.setFieldValue('transactionTo', val)} key={val}>{val}</Menu.Item>
-             )
-            })
-        )
-     }, [transactionForArray])
-     const smBreakpoint = useMediaQuery('(min-width: 768px)')
-    return (
-        <Modal opened={newPaymentModal} style={{overflow: 'visible'}} onClose={()=>setNewPaymentModal(false)} size={smBreakpoint ? '50%' : "100%"}>
-            <div className='flex flex-col w-full h-full'>
-                <div style={{zIndex: 300}} className='w-[200px] z-[300]'>
-                {getAllStudents ? (
-                    <Select label='Öğrenci No' maxDropdownHeight={100} zIndex={300} dropdownPosition='bottom' {...form.getInputProps('userNo')} data={getAllStudents.map((val)=>{
-                        return (
-                            {
-                                value: val.userNo,
-                                label: val.userNo + " | " + val.name
-                            }
-                        )
-                    })}/>
-                ) : (
-                    <Loader />
-                )}
-                </div>
-                <div className='flex flex-row mt-8 mb-4 w-full justify-between items-center'>
-                    <Menu position='left'>
-                        <Menu.Target>
-                            <Button>{form.values.transactionTo}</Button>
-                        </Menu.Target>
-                        <Menu.Dropdown style={{zIndex: 3000, position:'absolute', overflowY: "auto", height: 100}} >
-                            {rows}
-                        </Menu.Dropdown>
-                    </Menu>
-                    <NumberInput {...form.getInputProps('amount')} />
-                </div>
-                <Button disabled={loadingUpdateTransaction} className='mt-10' onClick={()=>{
-            updateTransaction({
-                amount: form.values.amount,
-                transactionFor: form.values.transactionTo,
-                userNo: form.values.userNo
-            })
-        }} color='cyan'>{loadingUpdateTransaction ? <Loader /> : "Ödemeyi Oluştur"}</Button>
-            </div>
-        </Modal>
-    )
 }

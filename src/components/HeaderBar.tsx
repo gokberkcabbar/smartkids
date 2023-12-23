@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   createStyles,
@@ -41,6 +42,7 @@ import { api } from '~/utils/api';
 import { ModeStorage } from './ModeStorage';
 import { useMediaQuery } from '@mantine/hooks';
 import { Logo } from './Logo';
+import { studentProfileAppShellProp } from '~/pages/protected/student/profile/[userId]';
 const useStyles = createStyles((theme) => ({
   
 
@@ -132,7 +134,7 @@ const mockdata = [
 
 
 
-export function HeaderBar() {
+export function HeaderBar({form}:{form?:studentProfileAppShellProp}) {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const { classes, theme } = useStyles();
@@ -146,7 +148,14 @@ export function HeaderBar() {
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text onClick={()=>router.replace(`/protected/admin/${item.link}`)} size="sm" fw={500}>
+          <Text onClick={()=>{
+            router.replace(`/protected/admin/${item.link}`)
+            console.log(form)
+            if (form){
+              form.setFieldValue('buttonSelected', "profil")
+              
+            }
+          }} size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">
