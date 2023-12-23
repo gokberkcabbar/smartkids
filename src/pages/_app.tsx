@@ -31,7 +31,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <Head>
         <title>Smart Kids Samsun</title>
         <meta name="description" content="Çocuk ingilizce dil gelişiminin doğru adresi. TPR metodu ile ezberleme, öğren. Alanında uzman kadromuz ile yıllarca kurslara gidip öğrenememeye son!"/>
-        <meta name="keywords" content="smart kids, ingilizce, ingilizce kursu, samsun ingilizce kursu, çocuk dil kursu, İlker Alan, smart kids samsun, samsun"/>
+        <meta name="keywords" content="smart kids, ingilizce, ingilizce kursu, samsun ingilizce kursu, çocuk dil kursu, İlker Alan, smart kids samsun, samsun smart kids"/>
       </Head>
       <Component {...pageProps} />
       </MantineProvider>
