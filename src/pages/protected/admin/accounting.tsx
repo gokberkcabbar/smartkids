@@ -328,7 +328,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
     }
 
 
-  }, [getAllStudents, form.values.studentNameSelected,form.values.studentNoSelected, changeTransactionStatus])
+  }, [getAllStudents, form.values.studentNameSelected,form.values.studentNoSelected, changeTransactionStatus, amountChange.values.userNo])
   console.log(amountChange.values)
   return (
     <AppShell
