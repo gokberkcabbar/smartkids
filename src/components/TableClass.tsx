@@ -177,7 +177,7 @@ export const TableClass = ({
             }
           })
           .filter((val) => {
-            if (val.name.includes(form.values.searchFilter)) {
+            if (val.name.toLocaleLowerCase('tr').includes(form.values.searchFilter.toLocaleLowerCase('tr'))) {
               return val;
             }
           })

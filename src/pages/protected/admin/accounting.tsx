@@ -189,7 +189,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                                 })
                             ) : (
                                 getAllStudents.filter((element)=>{
-                                    if(element.name.includes(form.values.studentNameSearch)){
+                                    if(element.name.toLocaleLowerCase('tr').includes(form.values.studentNameSearch.toLocaleLowerCase('tr'))){
                                         return element
                                     }
                                 }).map((element)=>{

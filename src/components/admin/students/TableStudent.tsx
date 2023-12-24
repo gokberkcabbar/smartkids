@@ -68,19 +68,19 @@ export const TableStudent = ({studentsForm}:{studentsForm:UseFormReturnType<{
               return val
             }
           }).filter((val)=>{
-             if(studentsForm.values.filterBy === "İsim / Numara" && val.name.includes(studentsForm.values.searchFilter)){
+             if(studentsForm.values.filterBy === "İsim / Numara" && val.name.toLocaleLowerCase('tr').includes(studentsForm.values.searchFilter.toLocaleLowerCase('tr'))){
                 return val
              }
-             else if(studentsForm.values.filterBy === "Sınıf" && val.class?.name.includes(studentsForm.values.searchFilter)){
+             else if(studentsForm.values.filterBy === "Sınıf" && val.class?.name.toLocaleLowerCase('tr').includes(studentsForm.values.searchFilter.toLocaleLowerCase('tr'))){
                 return val
              
              }   
               
 
-             else if(studentsForm.values.filterBy === "Anne Mesleği" && val.mJob?.includes(studentsForm.values.searchFilter)){
+             else if(studentsForm.values.filterBy === "Anne Mesleği" && val.mJob?.toLocaleLowerCase('tr').includes(studentsForm.values.searchFilter.toLocaleLowerCase('tr'))){
                 return val
              }
-             else if(studentsForm.values.filterBy === "Baba Mesleği" && val.fJob?.includes(studentsForm.values.searchFilter)){
+             else if(studentsForm.values.filterBy === "Baba Mesleği" && val.fJob?.toLocaleLowerCase('tr').includes(studentsForm.values.searchFilter.toLocaleLowerCase('tr'))){
                 return val
              }
         

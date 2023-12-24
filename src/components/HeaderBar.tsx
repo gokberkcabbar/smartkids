@@ -142,20 +142,20 @@ export function HeaderBar({form}:{form?:studentProfileAppShellProp}) {
   const router = useRouter()
   const smBreakpoint = useMediaQuery('(min-width: 768px)')
   const links = mockdata.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
+    <UnstyledButton onClick={()=>{
+      router.replace(`/protected/admin/${item.link}`)
+      console.log(form)
+      if (form){
+        form.setFieldValue('buttonSelected', "profil")
+        
+      }
+    }} className={classes.subLink} key={item.title}>
       <Group noWrap align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">
           <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
         </ThemeIcon>
         <div>
-          <Text onClick={()=>{
-            router.replace(`/protected/admin/${item.link}`)
-            console.log(form)
-            if (form){
-              form.setFieldValue('buttonSelected', "profil")
-              
-            }
-          }} size="sm" fw={500}>
+          <Text size="sm" fw={500}>
             {item.title}
           </Text>
           <Text size="xs" color="dimmed">
