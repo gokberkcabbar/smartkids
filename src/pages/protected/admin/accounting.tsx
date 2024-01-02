@@ -222,7 +222,7 @@ const Accounting : NextPage<AccountingProps> = (props: AccountingProps) => {
                 <th key={val}>
                     <Menu>
                         <Menu.Target>
-                            <Button variant={`${form.values.payment[val] ? 'filled' : 'subtle'}`}>
+                            <Button style={{width: 125}} variant={`${form.values.payment[val] ? 'filled' : 'subtle'}`}>
                                 {val}
                             </Button>
                         </Menu.Target>
