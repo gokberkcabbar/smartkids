@@ -10,6 +10,7 @@ export const AddStudentModalClassDropDownButton = ({classForm}:{classForm:UseFor
     classValue: string;
 }>}) => {
   
+//   zezisbebisinistegiuzerine
   const {data: getClasses} = api.class.getClasses.useQuery()
   const [classAtakum, setclassAtakum] = useState<React.JSX.Element[]>([])
   const [classPera, setClassPera] = useState<React.JSX.Element[]>([])
