@@ -1,207 +1,195 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
-    provider     = "mysql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id          String        @id @default(cuid())
-    createdAt   DateTime      @default(now())
-    name        String
-    userNo      String        @unique
-    password    String
-    image       String?
-    fName       String?
-    fJob        String?
-    fPhone      String?
-    mName       String?
-    mJob        String?
-    mPhone      String?
-    tPhone      String?
-    age         Int?
-    schoolClass String?
-    role        Role          @default(STUDENT)
-    class       Class?        @relation(fields: [classId], references: [id], onDelete: SetNull)
-    transaction Transaction[]
-    accounts    Account[]
-    sessions    Session[]
-    classId     String?
-    lastLogin DateTime?
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  name        String
+  userNo      String        @unique
+  password    String
+  image       String?
+  fName       String?
+  fJob        String?
+  fPhone      String?
+  mName       String?
+  mJob        String?
+  mPhone      String?
+  tPhone      String?
+  age         Int?
+  schoolClass String?
+  role        Role          @default(STUDENT)
+  classId     String?
+  lastLogin   DateTime?
+  class       Class?        @relation(fields: [classId], references: [id], onDelete: SetNull)
+  transaction Transaction[]
+  accounts    Account[]
+  sessions    Session[]
 
-    @@index([classId])
+  @@index([classId])
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
-}
-
-enum Role {
-    STUDENT
-    ADMIN
+  @@unique([identifier, token])
 }
 
 model Class {
-    id            String       @id @default(cuid())
-    name          String       @unique
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    user          User[]
-    location      Location
-    ClassPage     ClassPage?
-    task          Task[]
-    regularDay    regularDay[]
-    regularHour   Int
-    startingMonth DateTime
-    EndingMonth   DateTime
+  id            String       @id @default(cuid())
+  name          String       @unique
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  location      Location
+  regularHour   Int
+  startingMonth DateTime
+  EndingMonth   DateTime
+  user          User[]
+  ClassPage     ClassPage?
+  task          Task[]
+  regularDay    regularDay[]
 }
 
 model regularDay {
-    id         String @id @default(cuid())
-    regularDay Int
-    class      Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
-    classId    String
+  id         String @id @default(cuid())
+  regularDay Int
+  classId    String
+  class      Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
 
-    @@index([classId])
+  @@index([classId])
 }
 
 model Task {
-    id        String   @id @default(cuid())
-    name      String
-    class     Class?   @relation(fields: [classId], references: [id], onDelete: Cascade)
-    fileLink  String
-    createdAt DateTime @default(now())
-    deadline  DateTime
+  id        String   @id @default(cuid())
+  name      String
+  fileLink  String   @unique
+  createdAt DateTime @default(now())
+  deadline  DateTime
+  classId   String
+  class     Class?   @relation(fields: [classId], references: [id], onDelete: Cascade)
 
-    classId String
-
-    @@unique([fileLink])
-    @@index([classId])
-}
-
-enum Location {
-    ATAKUM
-    PERA
+  @@index([classId])
 }
 
 model Transaction {
-    id             String         @id @default(cuid())
-    user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-    transactionFor TransactionFor
-    amount         Float
-    userId         String
+  id             String         @id @default(cuid())
+  transactionFor TransactionFor
+  amount         Float
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([transactionFor, userId])
-    @@index([userId])
-    @@index([transactionFor])
+  @@unique([transactionFor, userId])
+  @@index([userId])
+  @@index([transactionFor])
 }
 
 model ClassPage {
-    id       String    @id @default(cuid())
-    class    Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
-    elements Element[]
-    classId  String
-
-    @@unique([classId])
+  id       String    @id @default(cuid())
+  classId  String    @unique
+  class    Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  elements Element[]
 }
 
 model Element {
-    id          String    @id @default(cuid())
-    layoutId    Int       @default(1)
-    className   String
-    layout      String
-    content     String    @db.Text
-    ClassPage   ClassPage @relation(fields: [classPageId], references: [id], onDelete: Cascade)
-    classPageId String
+  id          String    @id @default(cuid())
+  layoutId    Int       @default(1)
+  className   String
+  layout      String
+  content     String    @db.Text
+  classPageId String
+  ClassPage   ClassPage @relation(fields: [classPageId], references: [id], onDelete: Cascade)
 
-    @@unique([layoutId, className])
-    @@index([classPageId])
+  @@unique([layoutId, className])
+  @@index([classPageId])
 }
 
 model NotificationSetting {
-    id              String                   @id @default(cuid())
-    reportingEmail  String
-    notificationFor NotificationForSetting[]
+  id              String                   @id @default(cuid())
+  reportingEmail  String
+  notificationFor NotificationForSetting[]
 }
 
 model NotificationForSetting {
-    id                    String              @id @default(cuid())
-    notificateFor         NotificationFor
-    NotificationSetting   NotificationSetting @relation(fields: [notificationSettingId], references: [id], onDelete: Cascade)
-    notificationSettingId String
-    enabled               Boolean             @default(false)
+  id                    String              @id @default(cuid())
+  notificateFor         NotificationFor
+  notificationSettingId String
+  enabled               Boolean             @default(false)
+  NotificationSetting   NotificationSetting @relation(fields: [notificationSettingId], references: [id], onDelete: Cascade)
 
-    @@unique([notificateFor, notificationSettingId])
-    @@index([notificationSettingId])
+  @@unique([notificateFor, notificationSettingId])
+  @@index([notificationSettingId])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum Location {
+  ATAKUM
+  PERA
 }
 
 enum TransactionFor {
-    MATERYAL1
-    MATERYAL2
-    OCAK
-    SUBAT
-    MART
-    NISAN
-    MAYIS
-    HAZIRAN
-    TEMMUZ
-    AGUSTOS
-    EYLUL
-    EKIM
-    KASIM
-    ARALIK
+  MATERYAL1
+  MATERYAL2
+  OCAK
+  SUBAT
+  MART
+  NISAN
+  MAYIS
+  HAZIRAN
+  TEMMUZ
+  AGUSTOS
+  EYLUL
+  EKIM
+  KASIM
+  ARALIK
 }
 
 enum NotificationFor {
-    MATERYAL1
-    MATERYAL2
-    AYLAR
+  MATERYAL1
+  MATERYAL2
+  AYLAR
 }
